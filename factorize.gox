@@ -1,0 +1,34 @@
+func mod(x int, y int) int {
+    return x - x / y * y;
+}
+
+func is_prime(n int) bool {
+    if n < 2 {
+        return false;
+    }
+    var i int = 2;
+    while i*i <= n {
+        if n % i == 0 {
+            return false;
+        }
+        i = i + 1;
+    }
+    return true;
+}
+
+func factorize(n int) {
+    var factor int = 2;
+    print "factores primos de " + n + ":";
+
+    while n > 1 {
+        while n % factor == 0 {
+            print factor;
+            n = n / factor;
+        }
+        factor = factor + 1;
+    }
+}
+
+print "Ingrese un número: ";
+var num int = 56;
+factorize(num);
