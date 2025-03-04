@@ -17,14 +17,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "gox.run",
-        "title": "Run GOX Program"
+        "command": "extension.runFactorize",
+        "title": "Run"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "gox.run",
+          "command": "extension.runFactorize",
           "group": "navigation",
           "when": "editorLangId == gox"
         }
@@ -47,10 +47,6 @@
     ]
   },
   "main": "extension.js",
-  "activationEvents": [
-    "onCommand:extension.start"
-],
-
   "scripts": {
     "compile": "tsc -p ./",
     "package": "vsce package"
