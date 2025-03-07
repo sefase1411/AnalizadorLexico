@@ -1,0 +1,78 @@
+# Análisis Léxico para el Lenguaje Gox
+
+Este proyecto es un analizador léxico para el lenguaje de programación Gox (combinacion entre GO Y LOX). Se encarga de tokenizar el código fuente en sus componentes fundamentales, permitiendo su posterior análisis sintáctico y semántico.
+
+## Equipo de Trabajo
+
+- **Sebastián Fajardo Serna**
+- **Samuel García Cristancho**
+- **Camilo Rodríguez**
+
+## Estructura del Proyecto
+
+El proyecto consta de los siguientes archivos principales:
+
+- **lexer.py**: Contiene la implementación del analizador léxico.
+- **test_tokenize.py**: Archivo de pruebas unitarias utilizando pytest.
+- **factorize.gox**: Archivo de ejemplo en el lenguaje Gox.
+
+## Implementación del Lexer
+
+El lexer utiliza expresiones regulares para reconocer los diferentes tokens del lenguaje. Algunos de los tokens principales incluyen:
+
+- **Palabras clave** como `var`, `const`, `if`, `else`, `while`, `func`.
+- **Operadores aritméticos y lógicos** (`+`, `-`, `*`, `/`, `&&`, `||`).
+- **Identificadores y literales** (números, cadenas de texto, caracteres).
+- **Comentarios** de una y varias líneas.
+
+El proceso de tokenización sigue estos pasos:
+
+1. Se define una lista de tokens con sus respectivas expresiones regulares.
+2. Se analiza el código fuente, reconociendo los tokens válidos.
+3. Se almacenan los tokens junto con su información de línea y valor.
+4. Se detectan y manejan errores léxicos como caracteres ilegales o comentarios no cerrados.
+
+## Problemas Encontrados y Soluciones
+
+### 1. Comentarios No Terminados
+
+**Problema**: El lexer no detectaba correctamente los comentarios de múltiples líneas no cerrados (`/* ...`).
+
+**Solución**: Se modificó la lógica de detección de comentarios para verificar si un `/*` tiene su correspondiente `*/`. Si no lo tiene, se lanza una `SyntaxError` indicando la línea del error.
+
+### 2. Errores con Caracteres Ilegales
+
+**Problema**: El lexer no identificaba algunos caracteres inválidos y seguía ejecutándose sin lanzar errores.
+
+**Solución**: Se agregó una validación que, si ningún token coincide en una posición dada del código, se lanza un `SyntaxError` indicando la línea y el carácter problemático.
+
+### 3. Pruebas Fallidas en pytest
+
+**Problema**: La prueba `test_unterminated_comment` fallaba porque el lexer no generaba la excepción esperada.
+
+**Solución**: Se corrigió la detección de comentarios no cerrados, asegurándose de que pytest pudiera detectar correctamente el `SyntaxError`.
+
+## Uso del Analizador Léxico
+
+Para ejecutar el analizador léxico sobre un archivo `.gox`:
+
+```bash
+python lexer.
+
+## Pruebas unitarias
+
+pytest test_tokenize.py
+
+# GOX Language Extension for VS Code
+
+This extension adds syntax highlighting and execution support for the GOX language.
+
+## Installation
+
+1. Download the extension [here](https://github.com/tu-repositorio/gox-0.0.1.vsix).
+2. Open VS Code.
+3. Go to **Extensions (`Ctrl + Shift + X`)**.
+4. Click on `...` (top right menu) > **Install from VSIX**.
+5. Select the downloaded `gox-0.0.1.vsix` file.
+
+Now you can run GOX files by clicking the **Run Factorize** button!

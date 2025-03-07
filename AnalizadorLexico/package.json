@@ -1,0 +1,68 @@
+{
+  "name": "gox",
+  "displayName": "GOX",
+  "description": "Extensión para el lenguaje GOX en VS Code",
+  "version": "0.0.1",
+  "publisher": "grupo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mi_repository.git"
+  },
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.runFactorize",
+        "title": "Run"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "extension.runFactorize",
+          "group": "navigation",
+          "when": "editorLangId == gox"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "gox",
+        "aliases": [
+          "GOX",
+          "gox"
+        ],
+        "extensions": [
+          ".gox"
+        ],
+        "configuration": "language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gox",
+        "scopeName": "source.gox",
+        "path": "gox.tmLanguage.json"
+      }
+    ]
+  },
+  "main": "extension.js",
+
+  "scripts": {
+    "compile": "tsc -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^14.17.5",
+    "typescript": "^4.5.2",
+    "vscode": "^1.1.37"
+  },
+  "dependencies": {
+    "yocode": "^1.0.0-alpha.2"
+  }
+}

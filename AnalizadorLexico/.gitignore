@@ -1,0 +1,18 @@
+# Ignorar entornos virtuales de Python
+.venv/
+venv/
+
+# Ignorar dependencias de Node.js
+node_modules/
+
+# Ignorar caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar paquetes y librerías instaladas manualmente
+graphviz/
+graphviz-*.dist-info/
+ply/
+ply-*.dist-info/
