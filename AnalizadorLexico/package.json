@@ -18,7 +18,9 @@
     "commands": [
       {
         "command": "extension.runFactorize",
-        "title": "Run"
+        "title": "Ejecutar",
+        "icon": "$(play)"
+
       }
     ],
     "menus": {
@@ -52,6 +54,12 @@
     ]
   },
   "main": "extension.js",
+  "activationEvents": [
+  "onCommand:extension.runFactorize"
+],
+
+  
+
 
   "scripts": {
     "compile": "tsc -p ./",

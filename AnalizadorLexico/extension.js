@@ -3,7 +3,7 @@ const { exec } = require("child_process");
 const path = require("path");
 
 function activate(context) {
-    let outputChannel = vscode.window.createOutputChannel("GOX Lexer");
+    let outputChannel = vscode.window.createOutputChannel("GOX Paser");
 
     let disposable = vscode.commands.registerCommand("extension.runFactorize", () => {
         vscode.window.showInformationMessage("Running Factorize!");
@@ -15,7 +15,7 @@ function activate(context) {
         }
 
         const projectPath = workspaceFolders[0].uri.fsPath;
-        const lexerPath = path.join(projectPath, "lexer.py");
+        const lexerPath = path.join(projectPath, "lexer-parser-implementation.py");
         const fileToAnalyze = path.join(projectPath, "factorize.gox");
 
         // Run lexer.py with absolute paths
@@ -24,12 +24,12 @@ function activate(context) {
                 vscode.window.showErrorMessage(`Error: ${error.message}`);
                 return;
             }
-
+/*
             // Open output channel and print the tokens
             outputChannel.clear();
-            outputChannel.appendLine("Lexer Output:");
+            outputChannel.appendLine("lexer-parser Output:");
             outputChannel.appendLine(stdout);
-            outputChannel.show(true); // Show output panel
+            outputChannel.show(true); // Show output panel*/
         });
     });
 

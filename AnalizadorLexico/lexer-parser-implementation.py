@@ -1,6 +1,4 @@
 import sys
-sys.path.insert(0, "C:/Users/sefas/OneDrive/Escritorio/Proyectos U/Compiladores/AnalizadorLexico")
-
 
 import ply.lex as lex
 import ply.yacc as yacc
