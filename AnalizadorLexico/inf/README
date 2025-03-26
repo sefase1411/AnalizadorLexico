@@ -69,10 +69,5 @@ This extension adds syntax highlighting and execution support for the GOX langua
 
 ## Installation
 
-1. Download the extension [here](https://github.com/tu-repositorio/gox-0.0.1.vsix).
-2. Open VS Code.
-3. Go to **Extensions (`Ctrl + Shift + X`)**.
-4. Click on `...` (top right menu) > **Install from VSIX**.
-5. Select the downloaded `gox-0.0.1.vsix` file.
-
-Now you can run GOX files by clicking the **Run Factorize** button!
+para poder correr el programa se debe ejecutar el siguiente comando:
+code --install-extension gox-0.0.1.vsix                                                                                                     

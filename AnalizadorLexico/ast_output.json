@@ -1,0 +1,360 @@
+{
+  "type": "Program",
+  "declarations": [
+    {
+      "type": "FunctionDef",
+      "name": "mod",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "INT",
+            "name": "x"
+          },
+          {
+            "type": "INT",
+            "name": "y"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "Return",
+            "value": {
+              "type": "BinOp",
+              "operator": "*",
+              "left": {
+                "type": "BinOp",
+                "operator": "/",
+                "left": {
+                  "type": "BinOp",
+                  "operator": "-",
+                  "left": {
+                    "type": "VarRef",
+                    "name": "x"
+                  },
+                  "right": {
+                    "type": "VarRef",
+                    "name": "x"
+                  }
+                },
+                "right": {
+                  "type": "VarRef",
+                  "name": "y"
+                }
+              },
+              "right": {
+                "type": "VarRef",
+                "name": "y"
+              }
+            }
+          }
+        ]
+      },
+      "return_type": "INT"
+    },
+    {
+      "type": "FunctionDef",
+      "name": "is_prime",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "INT",
+            "name": "n"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "If",
+            "condition": {
+              "type": "BinOp",
+              "operator": "<",
+              "left": {
+                "type": "VarRef",
+                "name": "n"
+              },
+              "right": {
+                "type": "Number",
+                "value": 2
+              }
+            },
+            "thenBlock": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "Return",
+                  "value": {
+                    "type": "FalseLiteral"
+                  }
+                }
+              ]
+            },
+            "elseBlock": null
+          },
+          {
+            "type": "INT",
+            "name": "i",
+            "init": {
+              "type": "Number",
+              "value": 2
+            }
+          },
+          {
+            "type": "While",
+            "condition": {
+              "type": "BinOp",
+              "operator": "<=",
+              "left": {
+                "type": "BinOp",
+                "operator": "*",
+                "left": {
+                  "type": "VarRef",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "VarRef",
+                  "name": "i"
+                }
+              },
+              "right": {
+                "type": "VarRef",
+                "name": "n"
+              }
+            },
+            "body": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "If",
+                  "condition": {
+                    "type": "BinOp",
+                    "operator": "==",
+                    "left": {
+                      "type": "BinOp",
+                      "operator": "%",
+                      "left": {
+                        "type": "VarRef",
+                        "name": "n"
+                      },
+                      "right": {
+                        "type": "VarRef",
+                        "name": "i"
+                      }
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 0
+                    }
+                  },
+                  "thenBlock": {
+                    "type": "Block",
+                    "statements": [
+                      {
+                        "type": "Return",
+                        "value": {
+                          "type": "FalseLiteral"
+                        }
+                      }
+                    ]
+                  },
+                  "elseBlock": null
+                },
+                {
+                  "type": "Assign",
+                  "name": "i",
+                  "value": {
+                    "type": "BinOp",
+                    "operator": "+",
+                    "left": {
+                      "type": "VarRef",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "Return",
+            "value": {
+              "type": "TrueLiteral"
+            }
+          }
+        ]
+      },
+      "return_type": "BOOL"
+    },
+    {
+      "type": "FunctionDef",
+      "name": "factorize",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "INT",
+            "name": "n"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "INT",
+            "name": "factor",
+            "init": {
+              "type": "Number",
+              "value": 2
+            }
+          },
+          {
+            "type": "Print",
+            "expression": {
+              "type": "BinOp",
+              "operator": "+",
+              "left": {
+                "type": "BinOp",
+                "operator": "+",
+                "left": {
+                  "type": "String",
+                  "value": "factores primos de "
+                },
+                "right": {
+                  "type": "VarRef",
+                  "name": "n"
+                }
+              },
+              "right": {
+                "type": "String",
+                "value": ":"
+              }
+            }
+          },
+          {
+            "type": "While",
+            "condition": {
+              "type": "BinOp",
+              "operator": ">",
+              "left": {
+                "type": "VarRef",
+                "name": "n"
+              },
+              "right": {
+                "type": "Number",
+                "value": 1
+              }
+            },
+            "body": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "While",
+                  "condition": {
+                    "type": "BinOp",
+                    "operator": "==",
+                    "left": {
+                      "type": "BinOp",
+                      "operator": "%",
+                      "left": {
+                        "type": "VarRef",
+                        "name": "n"
+                      },
+                      "right": {
+                        "type": "VarRef",
+                        "name": "factor"
+                      }
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 0
+                    }
+                  },
+                  "body": {
+                    "type": "Block",
+                    "statements": [
+                      {
+                        "type": "Print",
+                        "expression": {
+                          "type": "VarRef",
+                          "name": "factor"
+                        }
+                      },
+                      {
+                        "type": "Assign",
+                        "name": "n",
+                        "value": {
+                          "type": "BinOp",
+                          "operator": "/",
+                          "left": {
+                            "type": "VarRef",
+                            "name": "n"
+                          },
+                          "right": {
+                            "type": "VarRef",
+                            "name": "factor"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assign",
+                  "name": "factor",
+                  "value": {
+                    "type": "BinOp",
+                    "operator": "+",
+                    "left": {
+                      "type": "VarRef",
+                      "name": "factor"
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "return_type": "void"
+    },
+    {
+      "type": "Print",
+      "expression": {
+        "type": "String",
+        "value": "Ingrese un n\u00c3\u00bamero: "
+      }
+    },
+    {
+      "type": "INT",
+      "name": "num",
+      "init": {
+        "type": "Number",
+        "value": 56
+      }
+    },
+    {
+      "type": "FunctionCall",
+      "name": "factorize",
+      "arguments": [
+        {
+          "type": "VarRef",
+          "name": "num"
+        }
+      ]
+    }
+  ]
+}

@@ -1,27 +1,28 @@
 func mod(x int, y int) int {
-    return x - x / y * y;
+    return (x - x) / y * y;
 }
 
 func is_prime(n int) bool {
-    if n < 2 {
+    if (n < 2){
         return false;
     }
     var i int = 2;
-    while i*i <= n {
-        if n % i == 0 {
+    while (i*i <= n ){
+        if (n % i == 0) {
             return false;
         }
         i = i + 1;
     }
     return true;
 }
+/*hola*/
 
 func factorize(n int) {
     var factor int = 2;
-    print "factores primos de " + n + ":";
+    print ("factores primos de " + n + ":");
 
-    while n > 1 {
-        while n % factor == 0 {
+    while (n > 1) {
+        while (n % factor == 0) {
             print factor;
             n = n / factor;
         }

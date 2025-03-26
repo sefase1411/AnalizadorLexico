@@ -14,13 +14,16 @@
   "categories": [
     "Programming Languages"
   ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onCommand:extension.runFactorize"
+  ],
   "contributes": {
     "commands": [
       {
         "command": "extension.runFactorize",
-        "title": "Ejecutar",
+        "title": "Ejecutar Factorize.gox",
         "icon": "$(play)"
-
       }
     ],
     "menus": {
@@ -42,25 +45,17 @@
         "extensions": [
           ".gox"
         ],
-        "configuration": "language-configuration.json"
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "gox",
         "scopeName": "source.gox",
-        "path": "gox.tmLanguage.json"
+        "path": "./gox.tmLanguage.json"
       }
     ]
   },
-  "main": "extension.js",
-  "activationEvents": [
-  "onCommand:extension.runFactorize"
-],
-
-  
-
-
   "scripts": {
     "compile": "tsc -p ./",
     "package": "vsce package"
