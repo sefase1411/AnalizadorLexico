@@ -1,9 +1,7 @@
 import sys
 from lexer import tokenize
 from parser import Parser
-from ast_utility import (
-    visualize_ast, generate_json_output, validate_json, save_ast_graph, to_json
-)
+from ast_utility import  generate_json_output, validate_json, save_ast_graph
 
 def analyze_file(filename):
     try:

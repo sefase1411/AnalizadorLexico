@@ -1,8 +1,6 @@
 from graphviz import Digraph
 
-# ======================================
-# 🌳 Clase base de todos los nodos AST
-# ======================================
+
 class ASTNode:
     def get_children(self):
         """Devuelve la lista de nodos hijo (sobrescribir en clases derivadas si aplica)."""
@@ -11,9 +9,6 @@ class ASTNode:
         """Devuelve la etiqueta para visualizar el nodo (sobrescribir en clases derivadas si se requiere)."""
         return self.__class__.__name__
 
-# ======================================
-# 🧩 Nodos del lenguaje
-# ======================================
 
 class Program(ASTNode):
     def __init__(self, decls):
@@ -179,9 +174,6 @@ class Number(ASTNode):
     def get_label(self):
         return f"{self.value}"
 
-# ======================================
-# 🌳 Visualización básica (por si se usa)
-# ======================================
 
 def generate_ast_graph(node):
     """Genera un grafo dirigido (Graphviz Digraph) a partir de un nodo AST dado."""
