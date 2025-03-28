@@ -200,6 +200,6 @@ def visualize_ast(node, filename="ast_output"):
     dot = generate_ast_graph(node)
     dot.format = 'png'  # <- PNG en vez de PDF
     output_path = dot.render(filename, cleanup=True)
-    print(f"✅ AST generado como imagen: {output_path}")
+    print(f" AST generado como imagen: {output_path}")
     return output_path
 

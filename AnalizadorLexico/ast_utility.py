@@ -3,10 +3,8 @@ import pydot
 from graphviz import Digraph
 from model import ASTNode  # Asegurate de que todos tus nodos hereden de esta clase
 
-# ===============================
-# 🔁 Conversión de AST a JSON
-# ===============================
 
+#  Conversión de AST a JSON
 def to_json(ast_node):
     """
     Convierte el AST a formato JSON.
@@ -21,7 +19,7 @@ def to_json(ast_node):
         node_type = node.__class__.__name__
         result = {"type": node_type}
 
-        # Mapeo explícito (si querés controlar nombres o estructura)
+        # Mapeo explícito 
         if node_type == "Program":
             result["declarations"] = [node_to_dict(decl) for decl in node.decls]
         elif node_type == "FunctionDef":
@@ -90,7 +88,7 @@ def generate_json_output(ast_node, filename="ast_output.json"):
             json.dump(ast_dict, f, indent=2)
         return True
     except Exception as e:
-        print(f"❌ Error al guardar el AST: {str(e)}")
+        print(f" Error al guardar el AST: {str(e)}")
         return False
 
 def validate_json(filename="ast_output.json"):
@@ -99,44 +97,13 @@ def validate_json(filename="ast_output.json"):
             json.load(f)
         return True
     except json.JSONDecodeError as e:
-        print(f"❌ Error de formato JSON: {str(e)}")
+        print(f" Error de formato JSON: {str(e)}")
         return False
     except Exception as e:
-        print(f"❌ Error al abrir el archivo: {str(e)}")
+        print(f" Error al abrir el archivo: {str(e)}")
         return False
 
-# ===============================
-# 🌳 Visualización con Graphviz
-# ===============================
 
-def visualize_ast(node, filename='ast_output'):
-    """
-    Crea una imagen PNG del AST usando graphviz.
-    Requiere que cada nodo AST tenga un método `.children()`.
-    """
-    graph = Digraph()
-
-    def visit(n):
-        node_label = f"{n.__class__.__name__}"
-        if hasattr(n, 'name'):
-            node_label += f"\\n{n.name}"
-        elif hasattr(n, 'value'):
-            node_label += f"\\n{n.value}"
-
-        graph.node(str(id(n)), label=node_label)
-
-        if hasattr(n, 'children'):
-            for child in n.children():
-                if child:
-                    graph.edge(str(id(n)), str(id(child)))
-                    visit(child)
-
-    visit(node)
-    graph.render(filename, format='png', cleanup=True)
-
-# ===============================
-# 🌳 Visualización alternativa con pydot
-# ===============================
 
 def generate_ast_graph(node, graph=None, parent_name=None, node_id=0):
     if graph is None:

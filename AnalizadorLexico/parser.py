@@ -263,11 +263,11 @@ class Parser:
             return None, [str(e)]
 
         tokens = tokenize(source_code)
-        '''
+        
         print("=== Tokens ===")
         for token in tokens:
             print(token)
-        '''
+        
 
         parser_instance = Parser(tokens)
         ast = parser_instance.parse()
