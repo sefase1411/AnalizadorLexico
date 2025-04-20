@@ -72,3 +72,7 @@ This extension adds syntax highlighting and execution support for the GOX langua
 para poder correr el programa se debe ejecutar los siguientes comandos:
 cd configuration vsce package
 code --install-extension gox-0.0.1.vsix 
+
+## Dependencias 
+node js
+yocode@^1.0.0-alpha.2

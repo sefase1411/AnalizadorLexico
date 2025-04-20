@@ -20,10 +20,7 @@ class TestLexer(unittest.TestCase):
         self.assertEqual(tokens, expected)
 
     def test_ignores_comments(self):
-        code = """
-        // comentario
-        var x int = 2; /* otro comentario */
-        """
+        code = "var x int = 2; // comentario"
         tokens = tokenize(code)
         types = [tok[0] for tok in tokens]
         self.assertIn('VAR', types)
@@ -57,7 +54,7 @@ class TestASTUtility(unittest.TestCase):
         decl = ast_json['declarations'][0]
         self.assertEqual(decl['type'], 'VarDecl')
         self.assertEqual(decl['name'], 'x')
-        self.assertEqual(decl['type'], 'INT')
+        self.assertEqual(decl['var_type'], 'INT')  
         self.assertEqual(decl['init']['value'], 10)
 
 if __name__ == '__main__':

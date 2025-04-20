@@ -1,7 +1,7 @@
 import json
 import pydot
 from graphviz import Digraph
-from model import ASTNode  # Asegurate de que todos tus nodos hereden de esta clase
+from model import ASTNode  
 
 
 #  Conversión de AST a JSON
@@ -39,8 +39,9 @@ def to_json(ast_node):
         elif node_type == "Block":
             result["statements"] = [node_to_dict(stmt) for stmt in node.statements]
         elif node_type == "VarDecl":
-            result["type"] = node.type
+            result["type"] = "VarDecl"           
             result["name"] = node.name
+            result["var_type"] = node.type        
             result["init"] = node_to_dict(node.init_expr)
         elif node_type == "Assign":
             result["name"] = node.name

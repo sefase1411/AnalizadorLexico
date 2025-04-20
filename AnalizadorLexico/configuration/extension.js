@@ -3,22 +3,21 @@ const path = require("path");
 
 function activate(context) {
     let disposable = vscode.commands.registerCommand("extension.runFactorize", () => {
-        vscode.window.showInformationMessage("Ejecutando factorize.gox...");
+        const pythonPath = vscode.workspace.getConfiguration("python").get("pythonPath") || "python";
 
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (!workspaceFolders) {
-            vscode.window.showErrorMessage("¡No se encontró una carpeta de trabajo!");
-            return;
-        }
+        // Carpeta de trabajo deseada (exacta):
+        const workingDir = "C:\\Users\\sefas\\OneDrive\\Documents\\compiladores\\AnalizadorLexico\\AnalizadorLexico";
 
-        const projectPath = workspaceFolders[0].uri.fsPath;
-        const lexerPath = path.join(projectPath, "main.py");
-        const fileToAnalyze = path.join(projectPath, "factorize.gox");
+        const lexerPath = path.join(workingDir, "main.py");
+        const fileToAnalyze = path.join(workingDir, "factorize.gox");
 
-        // Crear o reutilizar una terminal
-        const terminal = vscode.window.createTerminal(`GOX Terminal`);
+        const terminal = vscode.window.createTerminal("GOX Terminal");
         terminal.show(true);
-        terminal.sendText(`python "${lexerPath}" "${fileToAnalyze}"`);
+
+        // 🔑 Comando unido en una sola línea con ";" para PowerShell:
+        const fullCommand = `cd "${workingDir}"; & "${pythonPath}" "${lexerPath}" "${fileToAnalyze}"`;
+
+        terminal.sendText(fullCommand);
     });
 
     context.subscriptions.push(disposable);

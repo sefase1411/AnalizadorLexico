@@ -94,9 +94,11 @@ def tokenize(source_code):
     Cada token es una tupla (tipo, valor, línea).
     """
     check_unterminated_comment(source_code)
+    lexer.lineno = 1  # ← ESTA ES LA LÍNEA CLAVE
     lexer.input(source_code)
     tokens = []
     for tok in lexer:
         tokens.append((tok.type, tok.value, tok.lineno))
-    tokens.append(('EOF', '', lexer.lineno))  # Agregar EOF para compatibilidad
+    tokens.append(('EOF', '', lexer.lineno))  
     return tokens
+

@@ -57,6 +57,146 @@
     },
     {
       "type": "FunctionDef",
+      "name": "is_prime",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "INT",
+            "name": "n"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "If",
+            "condition": {
+              "type": "BinOp",
+              "operator": "<",
+              "left": {
+                "type": "VarRef",
+                "name": "n"
+              },
+              "right": {
+                "type": "Number",
+                "value": 2
+              }
+            },
+            "thenBlock": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "Return",
+                  "value": {
+                    "type": "FalseLiteral"
+                  }
+                }
+              ]
+            },
+            "elseBlock": null
+          },
+          {
+            "type": "VarDecl",
+            "name": "i",
+            "var_type": "INT",
+            "init": {
+              "type": "Number",
+              "value": 2
+            }
+          },
+          {
+            "type": "While",
+            "condition": {
+              "type": "BinOp",
+              "operator": "<=",
+              "left": {
+                "type": "BinOp",
+                "operator": "*",
+                "left": {
+                  "type": "VarRef",
+                  "name": "i"
+                },
+                "right": {
+                  "type": "VarRef",
+                  "name": "i"
+                }
+              },
+              "right": {
+                "type": "VarRef",
+                "name": "n"
+              }
+            },
+            "body": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "If",
+                  "condition": {
+                    "type": "BinOp",
+                    "operator": "==",
+                    "left": {
+                      "type": "BinOp",
+                      "operator": "%",
+                      "left": {
+                        "type": "VarRef",
+                        "name": "n"
+                      },
+                      "right": {
+                        "type": "VarRef",
+                        "name": "i"
+                      }
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 0
+                    }
+                  },
+                  "thenBlock": {
+                    "type": "Block",
+                    "statements": [
+                      {
+                        "type": "Return",
+                        "value": {
+                          "type": "FalseLiteral"
+                        }
+                      }
+                    ]
+                  },
+                  "elseBlock": null
+                },
+                {
+                  "type": "Assign",
+                  "name": "i",
+                  "value": {
+                    "type": "BinOp",
+                    "operator": "+",
+                    "left": {
+                      "type": "VarRef",
+                      "name": "i"
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "Return",
+            "value": {
+              "type": "TrueLiteral"
+            }
+          }
+        ]
+      },
+      "return_type": "BOOL"
+    },
+    {
+      "type": "FunctionDef",
       "name": "factorize",
       "params": {
         "type": "ParamList",
@@ -71,8 +211,9 @@
         "type": "Block",
         "statements": [
           {
-            "type": "INT",
+            "type": "VarDecl",
             "name": "factor",
+            "var_type": "INT",
             "init": {
               "type": "Number",
               "value": 2
@@ -200,8 +341,9 @@
       }
     },
     {
-      "type": "INT",
+      "type": "VarDecl",
       "name": "num",
+      "var_type": "INT",
       "init": {
         "type": "Number",
         "value": 56
