@@ -1,55 +1,78 @@
 import sys
+import json
 from lexer import tokenize
 from parser import Parser
-from ast_utility import  generate_json_output, validate_json, save_ast_graph
+from check import Checker
+from ast_utility import generate_json_output, save_ast_graph
+from symtab_utility import save_symbol_table_json, print_symbol_table
+import json
+from model import ast_to_dict
 
-def analyze_file(filename):
-    try:
-        with open(filename, 'r') as file:
-            source_code = file.read()
-    except Exception as e:
-        print(f"Error al leer el archivo: {str(e)}")
-        return None, [str(e)]
-
-    try:
-        tokens = tokenize(source_code)
-    except Exception as e:
-        print(f"Error durante la tokenización: {str(e)}")
-        return None, [str(e)]
-
-    print("=== Tokens ===")
-    for token in tokens:
-        print(token)
-
-    parser = Parser(tokens)
-    ast = parser.parse()
-    errors = parser.errors
-
-    if errors:
-        print("Errores de parsing:")
-        for error in errors:
-            print(f"  - {error}")
-        return ast, errors
-
-    # AST generado correctamente
-    generate_json_output(ast)
-    validate_json()
-    return ast, []
-
-if __name__ == "__main__":
+def main():
     if len(sys.argv) < 2:
         print("Uso: python main.py archivo.gox")
-        sys.exit(1)
+        return
 
-    filename = sys.argv[1]
-    ast, errors = analyze_file(filename)
-
-    if not ast or errors:
-        print(f"Se encontraron {len(errors)} errores. Abortando.")
-        sys.exit(1)
-
+    filepath = sys.argv[1]
     try:
-        '''visualize_ast(ast, filename="ast_output")'''
-        save_ast_graph(ast, output_file="ast_graph.png")
-    except Exception as e:
-        print(f"Error al visualizar o exportar el AST: {e}")
+        with open(filepath, 'r', encoding='utf-8') as f:
+            source = f.read()
+    except FileNotFoundError:
+        print(f"Archivo no encontrado: {filepath}")
+        return
+
+    # 1. Análisis léxico
+    tokens = tokenize(source)
+    print("=== Tokens generados ===")
+    for t in tokens:
+        print(t)
+
+    # 2. Análisis sintáctico
+    parser = Parser(tokens)
+    ast = parser.parse()
+
+    if parser.errors:
+        print("Errores de parsing:")
+        for err in parser.errors:
+            print(f"  - {err}")
+        return
+
+    # 3. Análisis semántico
+    checker = Checker()
+    errores = checker.check(ast)
+
+    # 4. Generación del AST (siempre)
+    generate_json_output(ast)
+    save_ast_graph(ast)
+
+    # 5. Guardar y mostrar tabla de símbolos
+    save_symbol_table_json(checker.symtab, "symbol_table.json")
+    print("\n📦 Tabla de Símbolos:\n")
+    print_symbol_table(checker.symtab)
+
+    # 6. Mostrar errores semánticos si hay
+    if errores:
+        print("\nErrores semánticos detectados:")
+        for e in errores:
+            print(e)
+        return
+
+    print("\n✅ Análisis exitoso. Programa válido sintáctica y semánticamente.")
+
+    # 7. Ejecutar el programa (si está disponible)
+    try:
+        from run_program import run_program
+        result = run_program(ast)
+        if result is not None:
+            print(f"Resultado de ejecución: {result}")
+    except ImportError:
+        print("🔍 No se encontró el archivo run_program.py para ejecutar el programa.")
+
+    # 8. Mostrar estructura completa del AST (para depuración)
+    print("\n🧠 AST completo en JSON:\n")
+    print(json.dumps(ast, default=lambda o: o.__dict__, indent=2))
+    print(json.dumps(ast_to_dict(ast), indent=2))
+
+
+if __name__ == "__main__":
+    main()

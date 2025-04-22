@@ -1,165 +1,172 @@
-# check.py
-'''
-Este archivo contendrá la parte de verificación/validación de tipos
-del compilador.  Hay varios aspectos que deben gestionarse para
-que esto funcione. Primero, debe tener una noción de "tipo" en su compilador.
-Segundo, debe administrar los entornos y el alcance para manejar los
-nombres de las definiciones (variables, funciones, etc.).
+from rich import print
+from rich.table import Table
+from model import (
+    Program, FunctionDef, ParamList, Param, Block, VarDecl,
+    Assign, Return, BinOp, UnaryOp, VarRef, FunctionCall,
+    Number, String, If, While, Print, TrueLiteral, FalseLiteral
+)
+from symtab import Symtab
+from typesys import check_binop, check_unaryop
 
-Una clave para esta parte del proyecto es realizar pruebas adecuadas.
-A medida que agregue código, piense en cómo podría probarlo.
-'''
-from rich    import print
-from typing  import Union
+def normalize_type(t):
+    return t.lower() if isinstance(t, str) else t
 
-from model   import *
-from symtab  import Symtab
-from typesys import typenames, check_binop, check_unaryop
+def unified_symbol_table(symtab):
+    def recursive_print(env):
+        table = Table(title=f"Symbol Table: '{env.name}'")
+        table.add_column("Símbolo", style="cyan")
+        table.add_column("Tipo de nodo", style="green")
+        table.add_column("Tipo declarado", style="magenta")
 
+        for name, node in env.entries.items():
+            table.add_row(
+                name,
+                node.__class__.__name__,
+                getattr(node, "dtype", "-")
+            )
 
-Checker(Visitor):
-	@classmethod
-	def check(cls, n:Node):
-		'''
-		1. Crear una nueva tabla de simbolos
-		2. Visitar todas las declaraciones
-		'''
-		check = cls()
-		env = Symtab()
-		n.accept(check, env)
-		return check
+        print(table)
+        for child in env.children:
+            recursive_print(child)
 
-	def visit(self, n:Program, env:Symtab):
-		'''
-		1. recorrer la lista de elementos
-		'''
-		for stmt in n.stmts:
-			stmt.accept(self, env)
+    recursive_print(symtab)
 
-	# Statements
+class Checker:
+    def __init__(self):
+        self.symtab = None
+        self.errores = []
 
-	def visit(self, n:Assignment, env:Symtab):
-		'''
-		1. Validar n.loc
-		2. Visitar n.expr
-		3. Verificar si son tipos compatibles
-		'''
-		type1 = env.get(n.name, env).type
-		type2 = n.expr.accept(self, env)
-		return check_binop('=', type1, type2)
+    def check(self, node):
+        env = Symtab("global")
+        self.symtab = env
+        self.visit(node, env)
+        print("\n📦 Tabla de Símbolos (unificada):\n")
+        unified_symbol_table(self.symtab)
+        return self.errores
 
-	def visit(self, n:Print, env:Symtab):
-		'''
-		1. visitar n.expr
-		'''
-		pass
+    def visit(self, node, env):
+        method = 'visit_' + node.__class__.__name__
+        visitor = getattr(self, method, self.generic_visit)
+        return visitor(node, env)
 
-	def visit(self, n:If, env:Symtab):
-		'''
-		1. Visitar n.test (validar tipos)
-		2. Visitar Stament por n.then
-		3. Si existe opcion n.else_, visitar
-		'''
-		pass
-			
-	def visit(self, n:While, env:Symtab):
-		'''
-		1. Visitar n.test (validar tipos)
-		2. visitar n.body
-		'''
-		pass
-		
-	def visit(self, n:Union[Break, Continue], env:Symtab):
-		'''
-		1. Verificar que esta dentro de un ciclo while
-		'''
-		pass
-			
-	def visit(self, n:Return, env:Symtab):
-		'''
-		1. Si se ha definido n.expr, validar que sea del mismo tipo de la función
-		'''
-		pass
-	
-	# Declarations
+    def generic_visit(self, node, env):
+        self.errores.append(f"⚠️ No se implementó visit_{node.__class__.__name__}")
 
-	def visit(self, n:Variable, env:Symtab):
-		'''
-		1. Agregar n.name a la TS actual
-		'''
-		env.add(n.name, n)
-		
+    def visit_Program(self, node, env):
+        for decl in node.decls:
+            self.visit(decl, env)
 
-	def visit(self, n:Function, env:Symtab):
-		'''
-		1. Guardar la función en la TS actual
-		2. Crear una nueva TS para la función
-		3. Agregar todos los n.params dentro de la TS
-		4. Visitar n.stmts
-		'''
-		env.add(n.name, n)
-		env = Symtab(env)
-		for p in n.params:
-			env.add(p.name, p)
-		if n.stmts: n.stmts.accept(self, env)
+    def visit_FunctionDef(self, node, env):
+        node.dtype = "function"
+        env.add(node.name, node)
+        func_env = Symtab(node.name, env)
+        if node.params:
+            self.visit(node.params, func_env)
+        if node.body:
+            self.visit(node.body, func_env)
 
-	def visit(self, n:Parameter, env:Symtab):
-		'''
-		1. Guardar el parametro (name, type) en TS
-		'''
-		pass
-		
-	# Expressions
+    def visit_ParamList(self, node, env):
+        for param in node.params:
+            self.visit(param, env)
 
-	def visit(self, n:Literal, env:Symtab):
-		'''
-		1. Retornar el tipo de la literal
-		'''
-		pass
+    def visit_Param(self, node, env):
+        node.dtype = normalize_type(node.type)
+        env.add(node.name, node)
 
-	def visit(self, n:BinOp, env:Symtab):
-		'''
-		1. visitar n.left y luego n.right
-		2. Verificar compatibilidad de tipos
-		'''
-		type1 = n.left.accept(self, env)
-		type2 = n.right.accept(self, env)
-		return check_binop(n.opr, type1, type2)
-		
-	def visit(self, n:UnaryOp, env:Symtab):
-		'''
-		1. visitar n.expr
-		2. validar si es un operador unario valido
-		'''
-		type1 = n.expr.accept(self, env)
-		return check_unaryop(n.opr, type1)
+    def visit_Block(self, node, env):
+        block_env = Symtab("block", env)
+        for stmt in node.statements:
+            self.visit(stmt, block_env)
 
-	def visit(self, n:TypeCast, env:Symtab):
-		'''
-		1. Visitar n.expr para validar
-		2. retornar el tipo del cast n.type
-		'''
-		pass
+    def visit_VarDecl(self, node, env):
+        node.dtype = normalize_type(node.type)
+        env.add(node.name, node)
+        if node.init_expr:
+            expr_type = self.visit(node.init_expr, env)
+            expected = normalize_type(node.type)
+            actual = normalize_type(expr_type)
+            if actual != expected:
+                self.errores.append(f"❌ Tipo incompatible en '{node.name}': esperado {expected}, se obtuvo {actual}")
 
-	def visit(self, n:FunctionCall, env:Symtab):
-		'''
-		1. Validar si n.name existe
-		2. visitar n.args (si estan definidos)
-		3. verificar que len(n.args) == len(func.params)
-		4. verificar que cada arg sea compatible con cada param de la función
-		'''
+    def visit_Assign(self, node, env):
+        var = env.get(node.name)
+        if not var:
+            self.errores.append(f"❌ Variable '{node.name}' no declarada")
+            return
+        expected = normalize_type(getattr(var, 'type', getattr(var, 'dtype', 'undefined')))
+        actual = normalize_type(self.visit(node.expr, env))
+        if actual != expected:
+            self.errores.append(f"❌ Tipo incompatible en asignación a '{node.name}': esperado {expected}, se obtuvo {actual}")
+        return check_binop("=", expected, actual)
 
-	def visit(self, n:NamedLocation, env:Symtab):
-		'''
-		1. Verificar si n.name existe en TS y obtener el tipo
-		2. Retornar el tipo
-		'''
-		pass
+    def visit_Print(self, node, env):
+        self.visit(node.expr, env)
 
-	def visit(self, n:MemoryLocation, env:Symtab):
-		'''
-		1. Visitar n.address (expression) para validar
-		2. Retornar el tipo de datos
-		'''
-		pass
+    def visit_If(self, node, env):
+        self.visit(node.condition, env)
+        self.visit(node.then_block, env)
+        if node.else_block:
+            self.visit(node.else_block, env)
 
+    def visit_While(self, node, env):
+        self.visit(node.condition, env)
+        self.visit(node.body, env)
+
+    def visit_Return(self, node, env):
+        if node.expr:
+            self.visit(node.expr, env)
+
+    def visit_BinOp(self, node, env):
+        left = normalize_type(self.visit(node.left, env))
+        right = normalize_type(self.visit(node.right, env))
+
+        if left is None or right is None:
+            self.errores.append(f"❌ No se puede aplicar '{node.op}' porque una de las expresiones no tiene tipo")
+            return None
+
+        result = check_binop(node.op, left, right)
+        if result is None:
+            self.errores.append(f"❌ Operador binario inválido '{node.op}' para tipos '{left}' y '{right}'")
+        return result
+
+    def visit_UnaryOp(self, node, env):
+        operand = normalize_type(self.visit(node.expr, env))
+        result = check_unaryop(node.op, operand)
+        if result is None:
+            self.errores.append(f"❌ Operador unario inválido '{node.op}' para tipo '{operand}'")
+        return result
+
+    def visit_Number(self, node, env):
+        return "int"
+
+    def visit_String(self, node, env):
+        return "string"
+
+    def visit_TrueLiteral(self, node, env):
+        return "bool"
+
+    def visit_FalseLiteral(self, node, env):
+        return "bool"
+
+    def visit_VarRef(self, node, env):
+        var = env.get(node.name)
+        if not var:
+            self.errores.append(f"❌ Variable '{node.name}' no declarada")
+            return "undefined"
+        return normalize_type(getattr(var, 'type', getattr(var, 'dtype', 'undefined')))
+
+    def visit_FunctionCall(self, node, env):
+        func = env.get(node.name)
+        if not func:
+            self.errores.append(f"❌ Función '{node.name}' no declarada")
+            return "undefined"
+        expected = func.params.params if func.params else []
+        actual = node.arguments or []
+        if len(expected) != len(actual):
+            self.errores.append(f"❌ La función '{node.name}' esperaba {len(expected)} argumentos, se pasaron {len(actual)}")
+        for e, a in zip(expected, actual):
+            t = normalize_type(self.visit(a, env))
+            et = normalize_type(e.type)
+            if et != t:
+                self.errores.append(f"❌ Tipo de argumento inválido para '{node.name}': se esperaba {et}, se recibió {t}")
+        return normalize_type(getattr(func, 'return_type', 'void'))

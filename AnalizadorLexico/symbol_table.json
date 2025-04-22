@@ -1,0 +1,84 @@
+{
+    "name": "global",
+    "symbols": {
+        "mod": "FunctionDef",
+        "is_prime": "FunctionDef",
+        "factorize": "FunctionDef",
+        "num": "VarDecl"
+    },
+    "children": [
+        {
+            "name": "mod",
+            "symbols": {
+                "x": "Param",
+                "y": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {},
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "is_prime",
+            "symbols": {
+                "n": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {
+                        "i": "VarDecl"
+                    },
+                    "children": [
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": []
+                        },
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": [
+                                {
+                                    "name": "block",
+                                    "symbols": {},
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "factorize",
+            "symbols": {
+                "n": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {
+                        "factor": "VarDecl"
+                    },
+                    "children": [
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": [
+                                {
+                                    "name": "block",
+                                    "symbols": {},
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

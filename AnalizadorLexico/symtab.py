@@ -46,6 +46,18 @@ class Symtab:
 		if self.parent:
 			self.parent.children.append(self)
 		self.children = []
+
+	def exists(self, name):
+		'''
+		Verifica si un símbolo ya fue declarado en esta tabla
+		o en sus entornos padres (alcance léxico).
+		'''
+		env = self
+		while env is not None:
+			if name in env.entries:
+				return True
+			env = env.parent
+		return False
 		
 	def add(self, name, value):
 		'''
@@ -85,4 +97,4 @@ class Symtab:
 		
 		for child in self.children:
 			child.print()
-
+	

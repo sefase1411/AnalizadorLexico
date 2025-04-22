@@ -15,8 +15,6 @@ func is_prime(n int) bool {
     }
     return true;
 }
-/*hola*/
-
 func factorize(n int) {
     var factor int = 2;
     print ("factores primos de " + n + ":");

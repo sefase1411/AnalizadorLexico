@@ -1,11 +1,11 @@
-from model import * 
-from ast_utility import * # Importar tus clases de nodos AST
+from model import *  
+from ast_utility import *
 from lexer import*
 
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
-        self.current = 0  # Índice del token actual
+        self.current = 0
         self.errors = []
 
     def parse(self):
@@ -89,7 +89,7 @@ class Parser:
             self.consume()
             init_expr = self.expression()
         self.match_literal(';')
-        return VarDecl(type_token[0], id_token[1], init_expr)
+        return VarDecl(type_token[1], id_token[1], init_expr)
 
     def typed_var_decl(self):
         type_token = self.match('INT') if self.check('INT') else self.match('BOOL')
@@ -99,7 +99,7 @@ class Parser:
             self.consume()
             init_expr = self.expression()
         self.match_literal(';')
-        return VarDecl(type_token[0], id_token[1], init_expr)
+        return VarDecl(type_token[1], id_token[1], init_expr)
 
     def funcdecl(self):
         self.match('FUNC')
@@ -108,7 +108,7 @@ class Parser:
         params = self.parameters() if not self.check_literal(')') else []
         self.match_literal(')')
         if self.check('INT') or self.check('BOOL'):
-            return_type = self.consume()[0]
+            return_type = self.consume()[1]
         else:
             return_type = 'void'
         body = self.block()
@@ -124,7 +124,7 @@ class Parser:
     def parameter(self):
         id_token = self.match('ID')
         type_token = self.match('INT') if self.check('INT') else self.match('BOOL')
-        return Param(type_token[0], id_token[1])
+        return Param(type_token[1], id_token[1])
 
     def block(self):
         self.match_literal('{')
@@ -145,6 +145,8 @@ class Parser:
         self.match('PRINT')
         value = self.expression()
         self.match_literal(';')
+        if value is None:
+            raise SyntaxError(f"Expresión faltante en print en línea {self.peek()[2]}")
         return Print(value)
 
     def if_stmt(self):
@@ -167,10 +169,15 @@ class Parser:
         self.match('RETURN')
         value = self.expression() if not self.check_literal(';') else None
         self.match_literal(';')
+        if value is None:
+            raise SyntaxError(f"Expresión faltante en return en línea {self.peek()[2]}")
         return Return(value)
 
     def expression(self):
-        return self.orterm()
+        expr = self.orterm()
+        if expr is None:
+            raise SyntaxError(f"Expresión inválida en línea {self.peek()[2]}")
+        return expr
 
     def orterm(self):
         expr = self.andterm()
@@ -218,6 +225,8 @@ class Parser:
             self.consume()
             return FalseLiteral()
         elif self.check('ID'):
+            if self.current + 1 < len(self.tokens) and self.tokens[self.current + 1][1] == '(':
+                return self.function_call_expr()
             return VarRef(self.consume()[1])
         elif self.check_literal('('):
             self.consume()
@@ -233,6 +242,18 @@ class Parser:
         token = self.peek()
         raise SyntaxError(f"Se encontró error en línea {token[2]}")
 
+    def function_call_expr(self):
+        func_name = self.match('ID')[1]
+        self.match_literal('(')
+        args = []
+        if not self.check_literal(')'):
+            args.append(self.expression())
+            while self.check_literal(','):
+                self.consume()
+                args.append(self.expression())
+        self.match_literal(')')
+        return FunctionCall(func_name, args)
+
     def function_call_stmt(self):
         func_name = self.match('ID')[1]
         self.match_literal('(')
@@ -245,16 +266,8 @@ class Parser:
         self.match_literal(')')
         self.match_literal(';')
         return FunctionCall(func_name, args)
+
     def analyze_file(filename):
-        """
-        Analiza un archivo GoxLang y genera el AST.
-    
-        Args:
-            filename: Ruta al archivo a analizar
-    
-        Returns:
-            El AST resultante y una lista de errores (si los hay)
-        """
         try:
             with open(filename, 'r') as file:
                 source_code = file.read()
@@ -263,11 +276,9 @@ class Parser:
             return None, [str(e)]
 
         tokens = tokenize(source_code)
-        
         print("=== Tokens ===")
         for token in tokens:
             print(token)
-        
 
         parser_instance = Parser(tokens)
         ast = parser_instance.parse()

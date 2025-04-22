@@ -26,6 +26,8 @@ bin_ops = {
 	('int', '-', 'int') : 'int',
 	('int', '*', 'int') : 'int',
 	('int', '/', 'int') : 'int',
+	('int', '%', 'int') : 'int',
+
 
 	('int', '<', 'int')  : 'bool',
 	('int', '<=', 'int') : 'bool',
@@ -33,6 +35,13 @@ bin_ops = {
 	('int', '>=', 'int') : 'bool',
 	('int', '==', 'int') : 'bool',
 	('int', '!=', 'int') : 'bool',
+	
+	# String operations
+    ('string', '+', 'string'): 'string',
+    ('string', '+', 'int'): 'string',
+    ('int', '+', 'string'): 'string', 
+    ('string', '==', 'string'): 'bool',
+    ('string', '!=', 'string'): 'bool',
 
 	# Float operations
 	('float', '+', 'float') : 'float',
