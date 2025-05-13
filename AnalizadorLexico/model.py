@@ -1,6 +1,22 @@
+# model.py
 from graphviz import Digraph
 
+# ───────────────────────────────────────────
+#  Clase base con uid y posición de fuente
+# ───────────────────────────────────────────
 class ASTNode:
+    _uid_counter = 0
+
+    def __init__(self, *, pos=None):
+        # Identificador único para graficadores o depuración
+        self.uid = ASTNode._uid_counter
+        ASTNode._uid_counter += 1
+
+        # (línea, columna) – úsalo si tu parser ya captura posiciones;
+        # si no, déjalo en None y todo funcionará igual
+        self.pos = pos
+
+    #  ── Métodos genéricos ──────────────────
     def get_children(self):
         return []
 
@@ -10,19 +26,49 @@ class ASTNode:
     def accept(self, visitor, env):
         return visitor.visit(self, env)
 
+    #  ── Serialización a dict / JSON ────────
     def to_dict(self):
-        result = {"type": self.__class__.__name__}
+        """
+        Produce un diccionario listo para json.dumps().
+        Se mantiene la clave 'type' (retro‑compatibilidad) y se añade:
+          • kind : misma cadena que 'type' (por claridad)
+          • uid  : identificador único
+          • pos  : {'line': int, 'col': int} si existe
+        """
+        result = {
+            "type": self.__class__.__name__,
+            "kind": self.__class__.__name__,
+            "uid": self.uid
+        }
+        if self.pos:
+            line, col = self.pos
+            result["pos"] = {"line": line, "col": col}
+
+        # Resto de atributos (recursivos si son nodos / listas)
         for attr, value in self.__dict__.items():
+            if attr in {"uid", "pos"}:   # ya serializados arriba
+                continue
             if isinstance(value, ASTNode):
                 result[attr] = value.to_dict()
             elif isinstance(value, list):
-                result[attr] = [v.to_dict() if isinstance(v, ASTNode) else v for v in value]
+                result[attr] = [
+                    v.to_dict() if isinstance(v, ASTNode) else v
+                    for v in value
+                ]
             else:
                 result[attr] = value
+                # Si detectamos un campo 'type' que en realidad es tipo de dato,
+                # exponemos también 'dtype' por conveniencia del checker
+                if attr == "type":
+                    result["dtype"] = value
         return result
 
+# ───────────────────────────────────────────
+#  Nodos del AST (sin cambiar su interfaz)
+# ───────────────────────────────────────────
 class Program(ASTNode):
-    def __init__(self, decls):
+    def __init__(self, decls, *, pos=None):
+        super().__init__(pos=pos)
         self.decls = decls
     def get_children(self):
         return self.decls
@@ -30,18 +76,20 @@ class Program(ASTNode):
         return "Program"
 
 class FunctionDef(ASTNode):
-    def __init__(self, name, params, body, return_type=None):
+    def __init__(self, name, params, body, return_type=None, *, pos=None):
+        super().__init__(pos=pos)
         self.name = name
         self.params = params
         self.body = body
         self.return_type = return_type
     def get_children(self):
-        return [child for child in [self.params, self.body] if child]
+        return [c for c in (self.params, self.body) if c]
     def get_label(self):
         return f"FunctionDef({self.name})"
 
 class ParamList(ASTNode):
-    def __init__(self, params):
+    def __init__(self, params, *, pos=None):
+        super().__init__(pos=pos)
         self.params = params or []
     def get_children(self):
         return self.params
@@ -49,30 +97,60 @@ class ParamList(ASTNode):
         return "ParamList"
 
 class Param(ASTNode):
-    def __init__(self, type_name, name):
+    def __init__(self, type_name, name, *, pos=None):
+        super().__init__(pos=pos)
         self.type = type_name
         self.name = name
     def get_label(self):
         return f"Param({self.name}:{self.type})"
 
 class Block(ASTNode):
-    def __init__(self, statements):
+    def __init__(self, statements, *, pos=None):
+        super().__init__(pos=pos)
         self.statements = statements or []
     def get_children(self):
         return self.statements
     def get_label(self):
         return "Block"
 
-class TrueLiteral(ASTNode):
+# ── Literales unificados (mantiene compatibilidad) ──
+class Literal(ASTNode):
+    def __init__(self, dtype, value, *, pos=None):
+        super().__init__(pos=pos)
+        self.dtype = dtype
+        self.value = value
+    def get_label(self):
+        return f"{self.value}"
+
+class TrueLiteral(Literal):
+    def __init__(self, *, pos=None):
+        super().__init__("bool", True, pos=pos)
     def get_label(self):
         return "true"
 
-class FalseLiteral(ASTNode):
+class FalseLiteral(Literal):
+    def __init__(self, *, pos=None):
+        super().__init__("bool", False, pos=pos)
     def get_label(self):
         return "false"
 
+class String(ASTNode):
+    def __init__(self, value, *, pos=None):
+        super().__init__(pos=pos)
+        self.value = value
+    def get_label(self):
+        return f"String({self.value})"
+
+class Number(ASTNode):
+    def __init__(self, value, *, pos=None):
+        super().__init__(pos=pos)
+        self.value = value
+    def get_label(self):
+        return f"{self.value}"
+
 class FunctionCall(ASTNode):
-    def __init__(self, name, arguments):
+    def __init__(self, name, arguments, *, pos=None):
+        super().__init__(pos=pos)
         self.name = name
         self.arguments = arguments or []
     def get_children(self):
@@ -81,7 +159,8 @@ class FunctionCall(ASTNode):
         return f"Call({self.name})"
 
 class VarDecl(ASTNode):
-    def __init__(self, type_name, name, init_expr=None):
+    def __init__(self, type_name, name, init_expr=None, *, pos=None):
+        super().__init__(pos=pos)
         self.type = type_name
         self.name = name
         self.init_expr = init_expr
@@ -91,7 +170,8 @@ class VarDecl(ASTNode):
         return f"VarDecl({self.name}:{self.type})"
 
 class Assign(ASTNode):
-    def __init__(self, name, expr):
+    def __init__(self, name, expr, *, pos=None):
+        super().__init__(pos=pos)
         self.name = name
         self.expr = expr
     def get_children(self):
@@ -100,21 +180,17 @@ class Assign(ASTNode):
         return "Assign"
 
 class Print(ASTNode):
-    def __init__(self, expr):
+    def __init__(self, expr, *, pos=None):
+        super().__init__(pos=pos)
         self.expr = expr
     def get_children(self):
         return [self.expr] if self.expr else []
     def get_label(self):
         return "Print"
 
-class String(ASTNode):
-    def __init__(self, value):
-        self.value = value
-    def get_label(self):
-        return f"String({self.value})"
-
 class If(ASTNode):
-    def __init__(self, condition, then_block, else_block=None):
+    def __init__(self, condition, then_block, else_block=None, *, pos=None):
+        super().__init__(pos=pos)
         self.condition = condition
         self.then_block = then_block
         self.else_block = else_block
@@ -127,7 +203,8 @@ class If(ASTNode):
         return "If"
 
 class While(ASTNode):
-    def __init__(self, condition, body):
+    def __init__(self, condition, body, *, pos=None):
+        super().__init__(pos=pos)
         self.condition = condition
         self.body = body
     def get_children(self):
@@ -136,7 +213,8 @@ class While(ASTNode):
         return "While"
 
 class Return(ASTNode):
-    def __init__(self, expr=None):
+    def __init__(self, expr=None, *, pos=None):
+        super().__init__(pos=pos)
         self.expr = expr
     def get_children(self):
         return [self.expr] if self.expr else []
@@ -144,7 +222,8 @@ class Return(ASTNode):
         return "Return"
 
 class BinOp(ASTNode):
-    def __init__(self, op, left, right):
+    def __init__(self, op, left, right, *, pos=None):
+        super().__init__(pos=pos)
         self.op = op
         self.left = left
         self.right = right
@@ -154,7 +233,8 @@ class BinOp(ASTNode):
         return f"Op({self.op})"
 
 class UnaryOp(ASTNode):
-    def __init__(self, op, expr):
+    def __init__(self, op, expr, *, pos=None):
+        super().__init__(pos=pos)
         self.op = op
         self.expr = expr
     def get_children(self):
@@ -163,34 +243,27 @@ class UnaryOp(ASTNode):
         return f"UnaryOp({self.op})"
 
 class VarRef(ASTNode):
-    def __init__(self, name):
+    def __init__(self, name, *, pos=None):
+        super().__init__(pos=pos)
         self.name = name
     def get_label(self):
         return f"VarRef({self.name})"
 
-class Number(ASTNode):
-    def __init__(self, value):
-        self.value = value
-    def get_label(self):
-        return f"{self.value}"
-
-class Visitor:
-    def visit(self, node, env):
-        method_name = 'visit_' + node.__class__.__name__
-        visitor = getattr(self, method_name, self.generic_visit)
-        return visitor(node, env)
-
-    def generic_visit(self, node, env):
-        raise Exception(f"No se encontró visit_{node.__class__.__name__} en Visitor")
-
 class Break(ASTNode):
+    def __init__(self, *, pos=None):
+        super().__init__(pos=pos)
     def get_label(self):
         return "Break"
 
 class Continue(ASTNode):
+    def __init__(self, *, pos=None):
+        super().__init__(pos=pos)
     def get_label(self):
         return "Continue"
 
+# ───────────────────────────────────────────
+#  Utilidades de visualización (sin cambios)
+# ───────────────────────────────────────────
 def generate_ast_graph(node):
     dot = Digraph(name="AST", comment="Abstract Syntax Tree")
     counter = {"id": 0}

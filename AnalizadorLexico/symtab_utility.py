@@ -1,4 +1,4 @@
-import json
+import json 
 from rich.console import Console
 from rich.table import Table
 
@@ -17,6 +17,9 @@ def save_symbol_table_json(symtab, output_file="symbol_table.json"):
         json.dump(data, f, indent=4)
 
 def print_symbol_table(symtab, title="Symbol Table"):
+    if not symtab.entries:  # Oculta tablas vacías
+        return
+
     console = Console()
     table = Table(title=f"{title}: '{symtab.name}'", show_lines=True)
     table.add_column("Símbolo", style="cyan", no_wrap=True)
@@ -25,7 +28,7 @@ def print_symbol_table(symtab, title="Symbol Table"):
 
     for name, node in symtab.entries.items():
         node_type = node.__class__.__name__
-        dtype = getattr(node, "type", "-")
+        dtype = getattr(node, "type", getattr(node, "dtype", "-"))
         table.add_row(name, node_type, str(dtype).lower())
 
     console.print(table)

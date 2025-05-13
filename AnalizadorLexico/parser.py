@@ -1,6 +1,17 @@
-from model import *  
+from model import *
 from ast_utility import *
-from lexer import*
+from lexer import *
+
+class SyntaxErrorDetail(Exception):
+    def __init__(self, error_type, line, column, message):
+        self.error_type = error_type
+        self.line = line
+        self.column = column
+        self.message = message
+
+    def __str__(self):
+        loc = f"línea {self.line}, columna {self.column}" if self.column else f"línea {self.line}"
+        return f"{self.error_type} en {loc}: {self.message}"
 
 class Parser:
     def __init__(self, tokens):
@@ -14,7 +25,7 @@ class Parser:
             try:
                 stmt = self.statement()
                 declarations.append(stmt)
-            except SyntaxError as e:
+            except SyntaxErrorDetail as e:
                 self.errors.append(str(e))
                 self.synchronize()
         return Program(declarations)
@@ -37,23 +48,23 @@ class Parser:
         if self.check(token_type):
             return self.consume()
         token = self.peek()
-        raise SyntaxError(f"Se encontró error en línea {token[2]}")
+        line = token[2]
+        col = token[3] if len(token) > 3 else None
+        raise SyntaxErrorDetail("UnexpectedToken", line, col, f"Se esperaba token '{token_type}', se encontró '{token[0]}'")
 
     def match_literal(self, literal):
         if self.check_literal(literal):
             return self.consume()
         token = self.peek()
-        raise SyntaxError(f"Se encontró error en línea {token[2]}")
+        line = token[2]
+        col = token[3] if len(token) > 3 else None
+        raise SyntaxErrorDetail("UnexpectedLiteral", line, col, f"Se esperaba '{literal}', se encontró '{token[1]}'")
 
     def synchronize(self):
         self.consume()
         while self.current < len(self.tokens):
-            if self.check_literal(';'):
-                self.consume()
-                return
-            if self.check_literal('{') or self.check_literal('}'):
-                return
-            if self.check('FUNC') or self.check('INT') or self.check('IF') or \
+            if self.check_literal(';') or self.check_literal('{') or self.check_literal('}') or \
+               self.check('FUNC') or self.check('INT') or self.check('IF') or \
                self.check('WHILE') or self.check('RETURN'):
                 return
             self.consume()
@@ -67,7 +78,7 @@ class Parser:
             return self.typed_var_decl()
         elif self.check('PRINT'):
             return self.print_stmt()
-        elif self.check('ID') and self.current + 1 < len(self.tokens) and self.tokens[self.current + 1][1] == '(': 
+        elif self.check('ID') and self.current + 1 < len(self.tokens) and self.tokens[self.current + 1][1] == '(':
             return self.function_call_stmt()
         elif self.check('ID'):
             return self.assignment()
@@ -78,7 +89,10 @@ class Parser:
         elif self.check('RETURN'):
             return self.return_stmt()
         token = self.peek()
-        raise SyntaxError(f"Se encontró error en línea {token[2]}")
+        raise SyntaxErrorDetail("InvalidStatement", token[2], None, f"Declaración inesperada '{token[1]}'")
+
+
+
 
     def var_decl(self):
         self.match('VAR')
