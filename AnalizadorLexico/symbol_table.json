@@ -1,7 +1,136 @@
 {
     "name": "global",
     "symbols": {
-        "x": "VarDecl"
+        "mod": "FunctionDef",
+        "gcd": "FunctionDef",
+        "powmod": "FunctionDef",
+        "find_period": "FunctionDef",
+        "shor": "FunctionDef",
+        "num": "VarDecl"
     },
-    "children": []
+    "children": [
+        {
+            "name": "mod",
+            "symbols": {
+                "a": "Param",
+                "b": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {},
+                    "children": []
+                }
+            ]
+        },
+        {
+            "name": "gcd",
+            "symbols": {
+                "a": "Param",
+                "b": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {},
+                    "children": [
+                        {
+                            "name": "block",
+                            "symbols": {
+                                "t": "VarDecl"
+                            },
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "powmod",
+            "symbols": {
+                "a": "Param",
+                "x": "Param",
+                "n": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {
+                        "result": "VarDecl"
+                    },
+                    "children": [
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": [
+                                {
+                                    "name": "block",
+                                    "symbols": {},
+                                    "children": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "find_period",
+            "symbols": {
+                "a": "Param",
+                "N": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {
+                        "r": "VarDecl",
+                        "apow": "VarDecl"
+                    },
+                    "children": [
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "shor",
+            "symbols": {
+                "N": "Param"
+            },
+            "children": [
+                {
+                    "name": "block",
+                    "symbols": {
+                        "a": "VarDecl",
+                        "r": "VarDecl",
+                        "x": "VarDecl",
+                        "f1": "VarDecl",
+                        "f2": "VarDecl"
+                    },
+                    "children": [
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": []
+                        },
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": []
+                        },
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }

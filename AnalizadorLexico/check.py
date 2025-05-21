@@ -9,8 +9,10 @@ from rich.table import Table
 from model import (
     Program, FunctionDef, ParamList, Param, Block, VarDecl,
     Assign, Return, BinOp, UnaryOp, VarRef, FunctionCall,
-    Number, String, If, While, Print, TrueLiteral, FalseLiteral
+    Number, String, Char, If, While, Print,
+    TrueLiteral, FalseLiteral
 )
+
 from symtab import Symtab
 from typesys import check_binop, check_unaryop
 
@@ -86,7 +88,6 @@ class Checker:
             line, col = node.pos
         self.errors.append(SemanticError(kind, msg, line, col))
 
-
     # ---------- despacho genérico ----------
     def visit(self, node, env):
         method = 'visit_' + node.__class__.__name__
@@ -152,7 +153,7 @@ class Checker:
                       f"Tipo incompatible en asignación a '{node.name}': "
                       f"esperado {expected}, se obtuvo {actual}")
 
-        return check_binop("=", expected, actual)
+        return expected
 
     # ---------- E/S ----------
     def visit_Print(self, node: Print, env):
@@ -189,6 +190,8 @@ class Checker:
             self._err(node, "InvalidBinOp",
                       f"Operador '{node.op}' no válido para "
                       f"tipos {left} y {right}")
+        else:
+            node.type = result
         return result
 
     def visit_UnaryOp(self, node: UnaryOp, env):
@@ -198,19 +201,30 @@ class Checker:
             self._err(node, "InvalidUnaryOp",
                       f"Operador unario '{node.op}' no válido "
                       f"para tipo {operand}")
+        else:
+            node.type = result
         return result
 
     # ---------- literales ----------
     def visit_Number(self, node: Number, env):
+        node.type = "int"
         return "int"
 
     def visit_String(self, node: String, env):
+        node.type = "string"
         return "string"
 
+    def visit_Char(self, node: Char, env):
+        
+        node.type = "char"
+        return "char"
+
     def visit_TrueLiteral(self, node: TrueLiteral, env):
+        node.type = "bool"
         return "bool"
 
     def visit_FalseLiteral(self, node: FalseLiteral, env):
+        node.type = "bool"
         return "bool"
 
     # ---------- referencias ----------
@@ -220,8 +234,9 @@ class Checker:
             self._err(node, "UndeclaredVar",
                       f"Variable '{node.name}' no declarada")
             return "undefined"
-        return normalize_type(getattr(var, 'type',
-                           getattr(var, 'dtype', 'undefined')))
+        node.type = normalize_type(getattr(var, 'type',
+                               getattr(var, 'dtype', 'undefined')))
+        return node.type
 
     def visit_FunctionCall(self, node: FunctionCall, env):
         func = env.get(node.name)
@@ -247,4 +262,5 @@ class Checker:
                           f"Tipo de argumento inválido para '{node.name}': "
                           f"se esperaba {expected_t}, se recibió {actual_t}")
 
-        return normalize_type(getattr(func, 'return_type', 'void'))
+        node.type = normalize_type(getattr(func, 'return_type', 'void'))
+        return node.type

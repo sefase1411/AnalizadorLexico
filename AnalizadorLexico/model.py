@@ -8,33 +8,22 @@ class ASTNode:
     _uid_counter = 0
 
     def __init__(self, *, pos=None):
-        # Identificador único para graficadores o depuración
         self.uid = ASTNode._uid_counter
         ASTNode._uid_counter += 1
-
-        # (línea, columna) – úsalo si tu parser ya captura posiciones;
-        # si no, déjalo en None y todo funcionará igual
         self.pos = pos
 
-    #  ── Métodos genéricos ──────────────────
     def get_children(self):
         return []
 
     def get_label(self):
         return self.__class__.__name__
 
-    def accept(self, visitor, env):
-        return visitor.visit(self, env)
+    def accept(self, visitor, context):
+        method_name = 'visit_' + self.__class__.__name__
+        method = getattr(visitor, method_name, visitor.generic_visit)
+        return method(self, context)
 
-    #  ── Serialización a dict / JSON ────────
     def to_dict(self):
-        """
-        Produce un diccionario listo para json.dumps().
-        Se mantiene la clave 'type' (retro‑compatibilidad) y se añade:
-          • kind : misma cadena que 'type' (por claridad)
-          • uid  : identificador único
-          • pos  : {'line': int, 'col': int} si existe
-        """
         result = {
             "type": self.__class__.__name__,
             "kind": self.__class__.__name__,
@@ -44,9 +33,8 @@ class ASTNode:
             line, col = self.pos
             result["pos"] = {"line": line, "col": col}
 
-        # Resto de atributos (recursivos si son nodos / listas)
         for attr, value in self.__dict__.items():
-            if attr in {"uid", "pos"}:   # ya serializados arriba
+            if attr in {"uid", "pos"}:
                 continue
             if isinstance(value, ASTNode):
                 result[attr] = value.to_dict()
@@ -57,15 +45,10 @@ class ASTNode:
                 ]
             else:
                 result[attr] = value
-                # Si detectamos un campo 'type' que en realidad es tipo de dato,
-                # exponemos también 'dtype' por conveniencia del checker
                 if attr == "type":
                     result["dtype"] = value
         return result
 
-# ───────────────────────────────────────────
-#  Nodos del AST (sin cambiar su interfaz)
-# ───────────────────────────────────────────
 class Program(ASTNode):
     def __init__(self, decls, *, pos=None):
         super().__init__(pos=pos)
@@ -113,7 +96,6 @@ class Block(ASTNode):
     def get_label(self):
         return "Block"
 
-# ── Literales unificados (mantiene compatibilidad) ──
 class Literal(ASTNode):
     def __init__(self, dtype, value, *, pos=None):
         super().__init__(pos=pos)
@@ -147,6 +129,17 @@ class Number(ASTNode):
         self.value = value
     def get_label(self):
         return f"{self.value}"
+    
+
+class Char(ASTNode):
+    def __init__(self, value, *, pos=None):
+        super().__init__(pos=pos)
+        self.value = value       
+    def get_children(self):
+        return []
+    def get_label(self):
+        return f"Char('{self.value}')"
+
 
 class FunctionCall(ASTNode):
     def __init__(self, name, arguments, *, pos=None):

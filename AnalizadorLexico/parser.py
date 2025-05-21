@@ -1,6 +1,14 @@
-from model import *
+from model import (
+    Number, String, TrueLiteral, FalseLiteral,
+    VarRef, FunctionCall, Char,
+    Program, FunctionDef, ParamList, Param,
+    Block, VarDecl, Assign, Print,
+    If, While, Return, BinOp, UnaryOp, Break, Continue
+)
 from ast_utility import *
 from lexer import *
+
+
 
 class SyntaxErrorDetail(Exception):
     def __init__(self, error_type, line, column, message):
@@ -91,9 +99,6 @@ class Parser:
         token = self.peek()
         raise SyntaxErrorDetail("InvalidStatement", token[2], None, f"Declaración inesperada '{token[1]}'")
 
-
-
-
     def var_decl(self):
         self.match('VAR')
         id_token = self.match('ID')
@@ -160,7 +165,7 @@ class Parser:
         value = self.expression()
         self.match_literal(';')
         if value is None:
-            raise SyntaxError(f"Expresión faltante en print en línea {self.peek()[2]}")
+            raise SyntaxErrorDetail("MissingExpression", self.peek()[2], None, "Expresión faltante en print")
         return Print(value)
 
     def if_stmt(self):
@@ -184,13 +189,13 @@ class Parser:
         value = self.expression() if not self.check_literal(';') else None
         self.match_literal(';')
         if value is None:
-            raise SyntaxError(f"Expresión faltante en return en línea {self.peek()[2]}")
+            raise SyntaxErrorDetail("MissingReturnValue", self.peek()[2], None, "Expresión faltante en return")
         return Return(value)
 
     def expression(self):
         expr = self.orterm()
         if expr is None:
-            raise SyntaxError(f"Expresión inválida en línea {self.peek()[2]}")
+            raise SyntaxErrorDetail("InvalidExpression", self.peek()[2], None, "Expresión inválida")
         return expr
 
     def orterm(self):
@@ -247,14 +252,23 @@ class Parser:
             expr = self.expression()
             self.match_literal(')')
             return expr
+        
+        
         elif self.check('STRING'):
             return String(self.consume()[1])
+        elif self.check('CHAR'):             
+            raw = self.consume()[1]          
+            val = raw[1:-1]                  
+            return Char(val)
+
         elif self.check_literal('-'):
             self.consume()
             return UnaryOp('-', self.primary())
 
+        
+        
         token = self.peek()
-        raise SyntaxError(f"Se encontró error en línea {token[2]}")
+        raise SyntaxErrorDetail("UnexpectedPrimary", token[2], None, f"Expresión no válida: {token[1]}")
 
     def function_call_expr(self):
         func_name = self.match('ID')[1]

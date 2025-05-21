@@ -1,9 +1,8 @@
 import ply.lex as lex
 
 # Definiciones de tokens y reglas del lexer
-
 tokens = [
-    'ID', 'NUMBER', 'STRING',
+    'ID', 'NUMBER', 'STRING', 'CHAR',
     'RETURN', 'IF', 'ELSE', 'WHILE', 'FUNC', 'INT', 'BOOL', 'VAR', 'PRINT', 'TRUE', 'FALSE',
     'EQ', 'NE', 'GE', 'LE', 'GT', 'LT', 'ASSIGN'
 ]
@@ -46,12 +45,19 @@ def t_COMMENT(t):
 def t_MULTILINE_COMMENT(t):
     r'/\*[\s\S]*?\*/'
     t.lexer.lineno += t.value.count('\n')
-    pass
+    pass  # Ignora comentarios multilínea
 
 # Token para números (enteros)
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
+    return t
+
+# Token para literales de carácter (por ejemplo: 'a', ' ', '\n', '\\', etc.)
+def t_CHAR(t):
+    r"'(\\.|[^\\'])'"
+    # El valor es el carácter interno, sin las comillas
+    t.value = t.value[1:-1]
     return t
 
 # Token para cadenas de texto
@@ -94,11 +100,10 @@ def tokenize(source_code):
     Cada token es una tupla (tipo, valor, línea).
     """
     check_unterminated_comment(source_code)
-    lexer.lineno = 1  # ← ESTA ES LA LÍNEA CLAVE
+    lexer.lineno = 1
     lexer.input(source_code)
-    tokens = []
+    tokens_list = []
     for tok in lexer:
-        tokens.append((tok.type, tok.value, tok.lineno))
-    tokens.append(('EOF', '', lexer.lineno))  
-    return tokens
-
+        tokens_list.append((tok.type, tok.value, tok.lineno))
+    tokens_list.append(('EOF', '', lexer.lineno))
+    return tokens_list

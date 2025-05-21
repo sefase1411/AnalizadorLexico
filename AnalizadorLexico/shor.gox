@@ -1,0 +1,61 @@
+func mod(a int, b int) int {
+    return a - b * (a / b);
+}
+
+func gcd(a int, b int) int {
+    while (b != 0) {
+        var t int = b;
+        b = mod(a, b);
+        a = t;
+    }
+    return a;
+}
+
+func powmod(a int, x int, n int) int {
+    var result int = 1;
+    while (x > 0) {
+        if (mod(x, 2) == 1) {
+            result = mod(result * a, n);
+        }
+        a = mod(a * a, n);
+        x = x / 2;
+    }
+    return result;
+}
+
+func find_period(a int, N int) int {
+    var r int = 1;
+    var apow int = powmod(a, r, N);
+    while (apow != 1) {
+        r = r + 1;
+        apow = powmod(a, r, N);
+    }
+    return r;
+}
+
+func shor(N int) int {
+    var a int = 2;
+    if (gcd(a, N) != 1) {
+        return a;          
+    }
+
+    var r int = find_period(a, N);
+    if (mod(r, 2) != 0) {    
+        return 0;
+    }
+
+    var x int = powmod(a, r / 2, N);
+    if (x == N - 1) {        
+        return 0;
+    }
+
+    var f1 int = gcd(x - 1, N);
+    var f2 int = gcd(x + 1, N);
+    print f1;
+    print f2;
+    return 0;
+}
+
+print "Ingrese un número a factorizar con Shor: ";
+var num int = 151821;
+shor(num);

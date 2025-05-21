@@ -2,36 +2,744 @@
   "type": "Program",
   "declarations": [
     {
-      "type": "VarDecl",
-      "name": "x",
-      "var_type": "int",
-      "init": {
-        "type": "Number",
-        "value": 5
-      }
+      "type": "FunctionDef",
+      "name": "mod",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "int",
+            "name": "a"
+          },
+          {
+            "type": "int",
+            "name": "b"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "Return",
+            "value": {
+              "type": "BinOp",
+              "operator": "-",
+              "left": {
+                "type": "VarRef",
+                "name": "a"
+              },
+              "right": {
+                "type": "BinOp",
+                "operator": "*",
+                "left": {
+                  "type": "VarRef",
+                  "name": "b"
+                },
+                "right": {
+                  "type": "BinOp",
+                  "operator": "/",
+                  "left": {
+                    "type": "VarRef",
+                    "name": "a"
+                  },
+                  "right": {
+                    "type": "VarRef",
+                    "name": "b"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "return_type": "int"
     },
     {
-      "type": "Assign",
-      "name": "x",
-      "value": {
-        "type": "BinOp",
-        "operator": "+",
-        "left": {
-          "type": "VarRef",
-          "name": "x"
-        },
-        "right": {
-          "type": "Number",
-          "value": 3
-        }
-      }
+      "type": "FunctionDef",
+      "name": "gcd",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "int",
+            "name": "a"
+          },
+          {
+            "type": "int",
+            "name": "b"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "While",
+            "condition": {
+              "type": "BinOp",
+              "operator": "!=",
+              "left": {
+                "type": "VarRef",
+                "name": "b"
+              },
+              "right": {
+                "type": "Number",
+                "value": 0
+              }
+            },
+            "body": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "VarDecl",
+                  "name": "t",
+                  "var_type": "int",
+                  "init": {
+                    "type": "VarRef",
+                    "name": "b"
+                  }
+                },
+                {
+                  "type": "Assign",
+                  "name": "b",
+                  "value": {
+                    "type": "int",
+                    "uid": 22,
+                    "pos": null,
+                    "name": "mod",
+                    "arguments": [
+                      {
+                        "type": "VarRef",
+                        "name": "a"
+                      },
+                      {
+                        "type": "VarRef",
+                        "name": "b"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assign",
+                  "name": "a",
+                  "value": {
+                    "type": "VarRef",
+                    "name": "t"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "Return",
+            "value": {
+              "type": "VarRef",
+              "name": "a"
+            }
+          }
+        ]
+      },
+      "return_type": "int"
+    },
+    {
+      "type": "FunctionDef",
+      "name": "powmod",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "int",
+            "name": "a"
+          },
+          {
+            "type": "int",
+            "name": "x"
+          },
+          {
+            "type": "int",
+            "name": "n"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "VarDecl",
+            "name": "result",
+            "var_type": "int",
+            "init": {
+              "type": "Number",
+              "value": 1
+            }
+          },
+          {
+            "type": "While",
+            "condition": {
+              "type": "BinOp",
+              "operator": ">",
+              "left": {
+                "type": "VarRef",
+                "name": "x"
+              },
+              "right": {
+                "type": "Number",
+                "value": 0
+              }
+            },
+            "body": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "If",
+                  "condition": {
+                    "type": "BinOp",
+                    "operator": "==",
+                    "left": {
+                      "type": "int",
+                      "uid": 43,
+                      "pos": null,
+                      "name": "mod",
+                      "arguments": [
+                        {
+                          "type": "VarRef",
+                          "name": "x"
+                        },
+                        {
+                          "type": "Number",
+                          "value": 2
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 1
+                    }
+                  },
+                  "thenBlock": {
+                    "type": "Block",
+                    "statements": [
+                      {
+                        "type": "Assign",
+                        "name": "result",
+                        "value": {
+                          "type": "int",
+                          "uid": 50,
+                          "pos": null,
+                          "name": "mod",
+                          "arguments": [
+                            {
+                              "type": "BinOp",
+                              "operator": "*",
+                              "left": {
+                                "type": "VarRef",
+                                "name": "result"
+                              },
+                              "right": {
+                                "type": "VarRef",
+                                "name": "a"
+                              }
+                            },
+                            {
+                              "type": "VarRef",
+                              "name": "n"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "elseBlock": null
+                },
+                {
+                  "type": "Assign",
+                  "name": "a",
+                  "value": {
+                    "type": "int",
+                    "uid": 58,
+                    "pos": null,
+                    "name": "mod",
+                    "arguments": [
+                      {
+                        "type": "BinOp",
+                        "operator": "*",
+                        "left": {
+                          "type": "VarRef",
+                          "name": "a"
+                        },
+                        "right": {
+                          "type": "VarRef",
+                          "name": "a"
+                        }
+                      },
+                      {
+                        "type": "VarRef",
+                        "name": "n"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "Assign",
+                  "name": "x",
+                  "value": {
+                    "type": "BinOp",
+                    "operator": "/",
+                    "left": {
+                      "type": "VarRef",
+                      "name": "x"
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 2
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "Return",
+            "value": {
+              "type": "VarRef",
+              "name": "result"
+            }
+          }
+        ]
+      },
+      "return_type": "int"
+    },
+    {
+      "type": "FunctionDef",
+      "name": "find_period",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "int",
+            "name": "a"
+          },
+          {
+            "type": "int",
+            "name": "N"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "VarDecl",
+            "name": "r",
+            "var_type": "int",
+            "init": {
+              "type": "Number",
+              "value": 1
+            }
+          },
+          {
+            "type": "VarDecl",
+            "name": "apow",
+            "var_type": "int",
+            "init": {
+              "type": "int",
+              "uid": 78,
+              "pos": null,
+              "name": "powmod",
+              "arguments": [
+                {
+                  "type": "VarRef",
+                  "name": "a"
+                },
+                {
+                  "type": "VarRef",
+                  "name": "r"
+                },
+                {
+                  "type": "VarRef",
+                  "name": "N"
+                }
+              ]
+            }
+          },
+          {
+            "type": "While",
+            "condition": {
+              "type": "BinOp",
+              "operator": "!=",
+              "left": {
+                "type": "VarRef",
+                "name": "apow"
+              },
+              "right": {
+                "type": "Number",
+                "value": 1
+              }
+            },
+            "body": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "Assign",
+                  "name": "r",
+                  "value": {
+                    "type": "BinOp",
+                    "operator": "+",
+                    "left": {
+                      "type": "VarRef",
+                      "name": "r"
+                    },
+                    "right": {
+                      "type": "Number",
+                      "value": 1
+                    }
+                  }
+                },
+                {
+                  "type": "Assign",
+                  "name": "apow",
+                  "value": {
+                    "type": "int",
+                    "uid": 90,
+                    "pos": null,
+                    "name": "powmod",
+                    "arguments": [
+                      {
+                        "type": "VarRef",
+                        "name": "a"
+                      },
+                      {
+                        "type": "VarRef",
+                        "name": "r"
+                      },
+                      {
+                        "type": "VarRef",
+                        "name": "N"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "Return",
+            "value": {
+              "type": "VarRef",
+              "name": "r"
+            }
+          }
+        ]
+      },
+      "return_type": "int"
+    },
+    {
+      "type": "FunctionDef",
+      "name": "shor",
+      "params": {
+        "type": "ParamList",
+        "params": [
+          {
+            "type": "int",
+            "name": "N"
+          }
+        ]
+      },
+      "body": {
+        "type": "Block",
+        "statements": [
+          {
+            "type": "VarDecl",
+            "name": "a",
+            "var_type": "int",
+            "init": {
+              "type": "Number",
+              "value": 2
+            }
+          },
+          {
+            "type": "If",
+            "condition": {
+              "type": "BinOp",
+              "operator": "!=",
+              "left": {
+                "type": "int",
+                "uid": 104,
+                "pos": null,
+                "name": "gcd",
+                "arguments": [
+                  {
+                    "type": "VarRef",
+                    "name": "a"
+                  },
+                  {
+                    "type": "VarRef",
+                    "name": "N"
+                  }
+                ]
+              },
+              "right": {
+                "type": "Number",
+                "value": 1
+              }
+            },
+            "thenBlock": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "Return",
+                  "value": {
+                    "type": "VarRef",
+                    "name": "a"
+                  }
+                }
+              ]
+            },
+            "elseBlock": null
+          },
+          {
+            "type": "VarDecl",
+            "name": "r",
+            "var_type": "int",
+            "init": {
+              "type": "int",
+              "uid": 113,
+              "pos": null,
+              "name": "find_period",
+              "arguments": [
+                {
+                  "type": "VarRef",
+                  "name": "a"
+                },
+                {
+                  "type": "VarRef",
+                  "name": "N"
+                }
+              ]
+            }
+          },
+          {
+            "type": "If",
+            "condition": {
+              "type": "BinOp",
+              "operator": "!=",
+              "left": {
+                "type": "int",
+                "uid": 117,
+                "pos": null,
+                "name": "mod",
+                "arguments": [
+                  {
+                    "type": "VarRef",
+                    "name": "r"
+                  },
+                  {
+                    "type": "Number",
+                    "value": 2
+                  }
+                ]
+              },
+              "right": {
+                "type": "Number",
+                "value": 0
+              }
+            },
+            "thenBlock": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "Return",
+                  "value": {
+                    "type": "Number",
+                    "value": 0
+                  }
+                }
+              ]
+            },
+            "elseBlock": null
+          },
+          {
+            "type": "VarDecl",
+            "name": "x",
+            "var_type": "int",
+            "init": {
+              "type": "int",
+              "uid": 129,
+              "pos": null,
+              "name": "powmod",
+              "arguments": [
+                {
+                  "type": "VarRef",
+                  "name": "a"
+                },
+                {
+                  "type": "BinOp",
+                  "operator": "/",
+                  "left": {
+                    "type": "VarRef",
+                    "name": "r"
+                  },
+                  "right": {
+                    "type": "Number",
+                    "value": 2
+                  }
+                },
+                {
+                  "type": "VarRef",
+                  "name": "N"
+                }
+              ]
+            }
+          },
+          {
+            "type": "If",
+            "condition": {
+              "type": "BinOp",
+              "operator": "==",
+              "left": {
+                "type": "VarRef",
+                "name": "x"
+              },
+              "right": {
+                "type": "BinOp",
+                "operator": "-",
+                "left": {
+                  "type": "VarRef",
+                  "name": "N"
+                },
+                "right": {
+                  "type": "Number",
+                  "value": 1
+                }
+              }
+            },
+            "thenBlock": {
+              "type": "Block",
+              "statements": [
+                {
+                  "type": "Return",
+                  "value": {
+                    "type": "Number",
+                    "value": 0
+                  }
+                }
+              ]
+            },
+            "elseBlock": null
+          },
+          {
+            "type": "VarDecl",
+            "name": "f1",
+            "var_type": "int",
+            "init": {
+              "type": "int",
+              "uid": 144,
+              "pos": null,
+              "name": "gcd",
+              "arguments": [
+                {
+                  "type": "BinOp",
+                  "operator": "-",
+                  "left": {
+                    "type": "VarRef",
+                    "name": "x"
+                  },
+                  "right": {
+                    "type": "Number",
+                    "value": 1
+                  }
+                },
+                {
+                  "type": "VarRef",
+                  "name": "N"
+                }
+              ]
+            }
+          },
+          {
+            "type": "VarDecl",
+            "name": "f2",
+            "var_type": "int",
+            "init": {
+              "type": "int",
+              "uid": 150,
+              "pos": null,
+              "name": "gcd",
+              "arguments": [
+                {
+                  "type": "BinOp",
+                  "operator": "+",
+                  "left": {
+                    "type": "VarRef",
+                    "name": "x"
+                  },
+                  "right": {
+                    "type": "Number",
+                    "value": 1
+                  }
+                },
+                {
+                  "type": "VarRef",
+                  "name": "N"
+                }
+              ]
+            }
+          },
+          {
+            "type": "Print",
+            "expression": {
+              "type": "VarRef",
+              "name": "f1"
+            }
+          },
+          {
+            "type": "Print",
+            "expression": {
+              "type": "VarRef",
+              "name": "f2"
+            }
+          },
+          {
+            "type": "Return",
+            "value": {
+              "type": "Number",
+              "value": 0
+            }
+          }
+        ]
+      },
+      "return_type": "int"
     },
     {
       "type": "Print",
       "expression": {
-        "type": "VarRef",
-        "name": "x"
+        "type": "string",
+        "uid": 161,
+        "pos": null,
+        "value": "Ingrese un n\u00famero a factorizar con Shor: "
       }
+    },
+    {
+      "type": "VarDecl",
+      "name": "num",
+      "var_type": "int",
+      "init": {
+        "type": "Number",
+        "value": 151821
+      }
+    },
+    {
+      "type": "int",
+      "uid": 166,
+      "pos": null,
+      "name": "shor",
+      "arguments": [
+        {
+          "type": "VarRef",
+          "name": "num"
+        }
+      ]
     }
   ]
 }
