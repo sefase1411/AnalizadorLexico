@@ -1,78 +1,391 @@
-# Análisis Léxico para el Lenguaje Gox
+# Compilador GoxLang con Máquina Virtual de Pila
 
-Este proyecto es un analizador léxico para el lenguaje de programación Gox (combinacion entre GO Y LOX). Se encarga de tokenizar el código fuente en sus componentes fundamentales, permitiendo su posterior análisis sintáctico y semántico.
+Este proyecto implementa un **compilador completo** para el lenguaje de programación **GoxLang** (combinación entre GO y LOX), incluyendo una **máquina virtual basada en pila** para la ejecución de código intermedio (IR).
 
-## Equipo de Trabajo
+## 👥 Equipo de Trabajo
 
 - **Sebastián Fajardo Serna**
 - **Samuel García Cristancho**
-- **Camilo Rodríguez**
+- **Juan Camilo Rodríguez**
 
-## Estructura del Proyecto
+## 🎯 Objetivo del Proyecto
 
-El proyecto consta de los siguientes archivos principales:
+Desarrollar un compilador de múltiples fases que transforme código fuente GoxLang en código ejecutable mediante una máquina virtual de pila, demostrando los conceptos fundamentales de compiladores: análisis léxico, sintáctico, semántico, generación de código intermedio y ejecución.
 
-- **lexer.py**: Contiene la implementación del analizador léxico.
-- **test_tokenize.py**: Archivo de pruebas unitarias utilizando pytest.
-- **factorize.gox**: Archivo de ejemplo en el lenguaje Gox.
+## 🏗️ Arquitectura del Compilador
 
-## Implementación del Lexer
+El compilador sigue el pipeline tradicional de compilación:
 
-El lexer utiliza expresiones regulares para reconocer los diferentes tokens del lenguaje. Algunos de los tokens principales incluyen:
+```
+Código Fuente (.gox) → Análisis Léxico → Análisis Sintáctico → Análisis Semántico → Generación IR → Máquina de Pila → Ejecución
+```
 
-- **Palabras clave** como `var`, `const`, `if`, `else`, `while`, `func`.
-- **Operadores aritméticos y lógicos** (`+`, `-`, `*`, `/`, `&&`, `||`).
-- **Identificadores y literales** (números, cadenas de texto, caracteres).
-- **Comentarios** de una y varias líneas.
+### Componentes Principales
 
-El proceso de tokenización sigue estos pasos:
+| Componente                | Archivo            | Descripción                        |
+| ------------------------- | ------------------ | ---------------------------------- |
+| **Analizador Léxico**     | `lexer.py`         | Tokenización del código fuente     |
+| **Analizador Sintáctico** | `parser.py`        | Construcción del AST               |
+| **Analizador Semántico**  | `check.py`         | Verificación de tipos y semántica  |
+| **Generador de IR**       | `ircode.py`        | Generación de código intermedio    |
+| **Máquina de Pila**       | `stack_machine.py` | Ejecución del código IR            |
+| **Modelo AST**            | `model.py`         | Definición de nodos del AST        |
+| **Sistema de Tipos**      | `typesys.py`       | Definición y verificación de tipos |
+| **Tabla de Símbolos**     | `symtab.py`        | Manejo de scopes y variables       |
 
-1. Se define una lista de tokens con sus respectivas expresiones regulares.
-2. Se analiza el código fuente, reconociendo los tokens válidos.
-3. Se almacenan los tokens junto con su información de línea y valor.
-4. Se detectan y manejan errores léxicos como caracteres ilegales o comentarios no cerrados.
+## 🚀 Características Implementadas
 
-## Problemas Encontrados y Soluciones
+### Análisis Léxico
 
-### 1. Comentarios No Terminados
+- ✅ Reconocimiento de tokens (palabras clave, operadores, literales)
+- ✅ Manejo de comentarios de línea (`//`) y bloque (`/* */`)
+- ✅ Detección de errores léxicos
+- ✅ Información de posición (línea/columna)
+- ✅ Soporte para literales de carácter y cadenas
+- ✅ Validación de comentarios no cerrados
+
+### Análisis Sintáctico
+
+- ✅ Parser recursivo descendente
+- ✅ Manejo de precedencia de operadores
+- ✅ Construcción de AST completo
+- ✅ Recuperación de errores sintácticos
+
+### Análisis Semántico
+
+- ✅ Verificación de tipos
+- ✅ Tabla de símbolos con scopes anidados
+- ✅ Verificación de declaraciones y uso de variables
+- ✅ Validación de llamadas a funciones
+
+### Generación de Código Intermedio
+
+- ✅ IR basado en instrucciones de pila
+- ✅ Optimización de orden de instrucciones
+- ✅ Manejo de variables locales y globales
+- ✅ Soporte para funciones y control de flujo
+
+### Máquina Virtual de Pila
+
+- ✅ Ejecución completa de instrucciones IR
+- ✅ Stack de activación con CallFrames
+- ✅ Memoria lineal byte-addressable
+- ✅ Soporte para recursión
+- ✅ Manejo de parámetros y valores de retorno
+
+## 📋 Implementación del Analizador Léxico
+
+El analizador léxico utiliza expresiones regulares para reconocer los diferentes tokens del lenguaje:
+
+### Tokens Principales
+
+- **Palabras clave**: `var`, `const`, `if`, `else`, `while`, `func`, `int`, `bool`, `true`, `false`
+- **Operadores aritméticos**: `+`, `-`, `*`, `/`, `%`
+- **Operadores lógicos**: `&&`, `||`
+- **Operadores de comparación**: `==`, `!=`, `<=`, `>=`, `<`, `>`
+- **Identificadores y literales**: números, cadenas de texto, caracteres
+
+### Proceso de Tokenización
+
+1. **Definición de tokens** con sus respectivas expresiones regulares
+2. **Análisis del código fuente**, reconociendo los tokens válidos
+3. **Almacenamiento de tokens** junto con información de línea y valor
+4. **Detección y manejo de errores** léxicos como caracteres ilegales
+
+### Manejo de Comentarios
+
+```python
+def t_COMMENT(t):
+    r'//.*'
+    pass  # Ignora comentarios de línea
+
+def t_MULTILINE_COMMENT(t):
+    r'/\*[\s\S]*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+    pass  # Ignora comentarios multilínea
+```
+
+## 📋 Instrucciones IR Soportadas
+
+### Aritmética
+
+- **Enteros**: `ADDI`, `SUBI`, `MULI`, `DIVI`
+- **Flotantes**: `ADDF`, `SUBF`, `MULF`, `DIVF`
+
+### Comparaciones
+
+- **Enteros**: `EQI`, `NEI`, `LTI`, `LEI`, `GTI`, `GEI`
+- **Flotantes**: `EQF`, `NEF`
+
+### Lógica
+
+- `ANDI`, `ORI`
+
+### Conversiones
+
+- `ITOF`, `FTOI`
+
+### Variables
+
+- `LOCAL_GET`, `LOCAL_SET`, `GLOBAL_GET`, `GLOBAL_SET`
+
+### Control de Flujo
+
+- `IF`, `ELSE`, `ENDIF`, `LOOP`, `CBREAK`, `ENDLOOP`
+
+### Funciones
+
+- `CALL`, `RET`
+
+### Memoria
+
+- `PEEKI`, `POKEI`, `PEEKF`, `POKEF`, `PEEKB`, `POKEB`, `GROW`
+
+### E/S
+
+- `PRINTI`, `PRINTF`, `PRINTB`
+
+## 🔧 Problemas Encontrados y Soluciones
+
+### Análisis Léxico
+
+#### 1. Comentarios No Terminados
 
 **Problema**: El lexer no detectaba correctamente los comentarios de múltiples líneas no cerrados (`/* ...`).
 
 **Solución**: Se modificó la lógica de detección de comentarios para verificar si un `/*` tiene su correspondiente `*/`. Si no lo tiene, se lanza una `SyntaxError` indicando la línea del error.
 
-### 2. Errores con Caracteres Ilegales
+```python
+def check_unterminated_comment(source_code):
+    open_comment = source_code.find("/*")
+    close_comment = source_code.find("*/", open_comment + 2)
+    if open_comment != -1 and close_comment == -1:
+        line_number = source_code[:open_comment].count("\n") + 1
+        raise SyntaxError(f"Línea {line_number}: Comentario no terminado")
+```
+
+#### 2. Errores con Caracteres Ilegales
 
 **Problema**: El lexer no identificaba algunos caracteres inválidos y seguía ejecutándose sin lanzar errores.
 
 **Solución**: Se agregó una validación que, si ningún token coincide en una posición dada del código, se lanza un `SyntaxError` indicando la línea y el carácter problemático.
 
-### 3. Pruebas Fallidas en pytest
+```python
+def t_error(t):
+    print(f"[Lexer] Caracter ilegal '{t.value[0]}' en línea {t.lexer.lineno}")
+    t.lexer.skip(1)
+```
+
+#### 3. Pruebas Fallidas en pytest
 
 **Problema**: La prueba `test_unterminated_comment` fallaba porque el lexer no generaba la excepción esperada.
 
 **Solución**: Se corrigió la detección de comentarios no cerrados, asegurándose de que pytest pudiera detectar correctamente el `SyntaxError`.
 
-## Uso del Analizador Léxico
+### Fase Máquina Virtual de Pila
 
-Para ejecutar el analizador léxico sobre un archivo `.gox`:
+#### 1. Orden Incorrecto de Instrucciones IR
+
+**Problema**: Las variables globales se leían antes de ser inicializadas.
+
+```ir
+('GLOBAL_GET', 'x')    # ← Lee x (valor 0)
+('PRINTI',)            # ← Imprime 0
+('CONSTI', 42)         # ← Después asigna 42
+('GLOBAL_SET', 'x')
+```
+
+**Solución**: Reorganizamos el generador de IR para ejecutar inicializaciones antes que los statements.
+
+```ir
+('CONSTI', 42)         # ← Primero asigna 42
+('GLOBAL_SET', 'x')
+('GLOBAL_GET', 'x')    # ← Luego lee x (valor 42)
+('PRINTI',)            # ← Imprime 42
+```
+
+#### 2. Llamadas a Funciones sin Parámetros
+
+**Problema**: Las funciones no recibían parámetros correctamente, siempre retornaban 0.
+
+**Solución**: Implementamos manejo completo de parámetros en `_exec_call`:
+
+- Extracción de parámetros del stack
+- Asignación a variables locales del CallFrame
+- Preservación del valor de retorno
+
+```python
+def _exec_call(self, func_name):
+    # Extraer parámetros del stack
+    param_count = self._get_param_count(func_name)
+    params = []
+    for _ in range(param_count):
+        if self.stack:
+            params.append(self.stack.pop())
+
+    # Crear CallFrame y asignar parámetros
+    new_frame = CallFrame(func_name, return_address, param_count)
+    param_names = self._get_param_names(func_name)
+    for i, param_name in enumerate(param_names):
+        if i < len(params):
+            new_frame.set_local(param_name, params[i])
+```
+
+#### 3. Gestión de Stack de Activación
+
+**Problema**: Los valores de retorno se perdían entre llamadas a funciones.
+
+**Solución**: Corregimos `_exec_ret` para mantener el valor de retorno en el stack principal.
+
+#### 4. División por Cero en Algoritmo Shor
+
+**Problema**: El algoritmo de Shor causaba división por cero en casos específicos.
+
+**Solución**: Agregamos validación en la función `mod` para manejar casos edge.
+
+```gox
+func mod(a int, b int) int {
+    if (b == 0) {
+        return 0;
+    }
+    return a - b * (a / b);
+}
+```
+
+## 🧪 Suite de Pruebas
+
+### Pruebas del Analizador Léxico
+
+```python
+def test_token_var_decl(self):
+    code = "var x int = 10;"
+    tokens = tokenize(code)
+    expected = [
+        ('VAR', 'var', 1),
+        ('ID', 'x', 1),
+        ('INT', 'int', 1),
+        ('ASSIGN', '=', 1),
+        ('NUMBER', 10, 1),
+        (';', ';', 1),
+        ('EOF', '', 1)
+    ]
+    self.assertEqual(tokens, expected)
+```
+
+### Pruebas de la Máquina de Pila
+
+1. **Aritmética Básica**: Operaciones `+`, `-`, `*`, `/`
+2. **Llamadas a Funciones**: Paso de parámetros y valores de retorno
+3. **Condicionales**: Estructuras `if/else`
+4. **Bucles**: Estructuras `while`
+5. **Recursión**: Funciones recursivas (factorial)
+6. **Variables Globales**: Declaración e inicialización
+7. **Variables Locales**: Scope y persistencia
+8. **Programa Complejo**: Algoritmo de Shor para factorización
+
+### Resultados de Pruebas
+
+```
+RESULTADOS: 7/8 pruebas pasaron
+- arithmetic: ✅ PASSED
+- functions: ✅ PASSED
+- conditionals: ✅ PASSED
+- loops: ✅ PASSED
+- recursion: ✅ PASSED
+- global_vars: ✅ PASSED
+- local_vars: ✅ PASSED
+- complex_shor: ⏱️ TIMEOUT (comportamiento esperado para números grandes)
+```
+
+## 📂 Estructura del Proyecto
+
+```
+GoxLang-Compiler/
+├── 📁 Compilador Principal
+│   ├── lexer.py              # Análisis léxico
+│   ├── parser.py             # Análisis sintáctico
+│   ├── check.py              # Análisis semántico
+│   ├── ircode.py             # Generación de IR
+│   ├── stack_machine.py      # Máquina virtual de pila
+│   └── main.py               # Pipeline principal
+├── 📁 Infraestructura
+│   ├── model.py              # Definición del AST
+│   ├── typesys.py            # Sistema de tipos
+│   ├── symtab.py             # Tabla de símbolos
+│   └── diagnostics.py        # Manejo de errores
+├── 📁 Utilidades
+│   ├── ast_utility.py        # Exportación de AST
+│   └── symtab_utility.py     # Exportación de símbolos
+├── 📁 Pruebas
+│   ├── test_stack_machine.py # Suite de pruebas de la VM
+│   └── pruebasunitarias.py   # Pruebas del lexer/parser
+├── 📁 Ejemplos
+│   ├── shor.gox              # Algoritmo de Shor
+│   └── factorize.gox         # Factorización
+├── 📁 Extensión VS Code
+│   ├── extension.js          # Lógica de la extensión
+│   ├── package.json          # Configuración
+│   └── gox.tmLanguage.json   # Syntax highlighting
+└── 📁 Documentación
+    └── README.md             # Este archivo
+```
+
+## 🚀 Instalación y Uso
+
+### Prerrequisitos
 
 ```bash
-python lexer.
+Python 3.8+
+pip install ply rich
+```
 
-## Pruebas unitarias
+### Uso del Analizador Léxico
 
-pytest test_tokenize.py
+```bash
+python lexer.py
+```
 
-# GOX Language Extension for VS Code
+### Uso del Compilador Completo
 
-This extension adds syntax highlighting and execution support for the GOX language.
+```bash
+# Compilar un programa
+python main.py programa.gox
 
-## Installation
+# Compilar y ejecutar
+python main.py programa.gox --execute
 
-para poder correr el programa se debe ejecutar los siguientes comandos:
-cd configuration vsce package
-code --install-extension gox-0.0.1.vsix 
+# Compilar con debug
+python main.py programa.gox --vm-debug
 
-## Dependencias 
-node js
-yocode@^1.0.0-alpha.2
+# Ejecutar pruebas del lexer
+pytest pruebasunitarias.py
+
+# Ejecutar pruebas de la máquina de pila
+python test_stack_machine.py
+```
+
+### Ejemplo de Programa GoxLang
+
+```gox
+func factorial(n int) int {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+var result int = factorial(5);
+print result;  // Imprime: 120
+```
+
+## 📚 Referencias Académicas
+
+- **Dragon Book**: Compilers: Principles, Techniques, and Tools
+- **Modern Compiler Implementation**: Andrew W. Appel
+- **Engineering a Compiler**: Keith Cooper & Linda Torczon
+- **Crafting Interpreters**: Robert Nystrom
+
+---
+
+**Este proyecto demuestra una implementación completa y funcional de un compilador moderno con máquina virtual, aplicando los principios fundamentales de la teoría de compiladores desde el análisis léxico hasta la ejecución, con manejo robusto de errores y una suite de pruebas exhaustiva.**

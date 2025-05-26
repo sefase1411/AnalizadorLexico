@@ -76,27 +76,32 @@ class IRCodeGenerator:
         actual_main_func = IRFunction("_actual_main", [])
         self.module.add_function(actual_main_func)
 
-        # 4) Registrar variables globales
+        # 4) Registrar variables globales Y recopilar inicializaciones
         for node in ast_root:
             if isinstance(node, VarDecl):
                 self.visit_VarDecl(node, None)
 
-        # 5) Statements globales van a _actual_main
-        for node in ast_root:
-            if not isinstance(node, (FunctionDef, VarDecl)):
-                node.accept(self, actual_main_func)
-
-        # 6) Inicialización global
+        # 5) PRIMERO: Inicialización global (ORDEN CORREGIDO)
         init_instrs: list = []
         for name, expr in self.global_inits:
             if expr is not None:
                 expr.accept(self, actual_main_func)
                 init_instrs.extend(actual_main_func.instructions)
                 init_instrs.append(('GLOBAL_SET', name))
-                actual_main_func.instructions = []
-        actual_main_func.instructions = init_instrs + actual_main_func.instructions
+                actual_main_func.instructions = []  # Limpiar para siguiente
+        
+        # 6) SEGUNDO: Statements globales (prints, etc.)
+        statements_instrs: list = []
+        for node in ast_root:
+            if not isinstance(node, (FunctionDef, VarDecl)):
+                node.accept(self, actual_main_func)
+                statements_instrs.extend(actual_main_func.instructions)
+                actual_main_func.instructions = []  # Limpiar para siguiente
 
-        # 7) main solo llama a _actual_main y hace RET
+        # 7) Combinar en orden correcto: INIT PRIMERO, LUEGO STATEMENTS
+        actual_main_func.instructions = init_instrs + statements_instrs
+
+        # 8) main solo llama a _actual_main y hace RET
         main_func.add_instr("CALL", "_actual_main")
         main_func.add_instr("RET")
 

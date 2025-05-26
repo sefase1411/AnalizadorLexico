@@ -1,4 +1,4 @@
-# check.py
+# check.py - Version sin emojis
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional
@@ -28,7 +28,7 @@ class SemanticError:
 
     def __str__(self) -> str:
         loc = f"[L{self.line},C{self.col}] " if self.line is not None else ""
-        return f"❌ {loc}{self.kind}: {self.msg}"
+        return f"ERROR {loc}{self.kind}: {self.msg}"
 
 # ────────────────────────────────────────────────
 #  Utilidades
@@ -45,7 +45,7 @@ def unified_symbol_table(symtab: Symtab):
             return
 
         table = Table(title=f"Symbol Table: '{env.name}'")
-        table.add_column("Símbolo", style="cyan")
+        table.add_column("Simbolo", style="cyan")
         table.add_column("Tipo de nodo", style="green")
         table.add_column("Tipo declarado", style="magenta")
 
@@ -76,7 +76,7 @@ class Checker:
         self.symtab = env
         self.visit(node, env)
 
-        print("\n📦 Tabla de Símbolos (unificada):\n")
+        print("\nTabla de Simbolos (unificada):\n")
         unified_symbol_table(self.symtab)
 
         return self.errors
@@ -96,7 +96,7 @@ class Checker:
 
     def generic_visit(self, node, env):
         self._err(node, "NoVisitor",
-                  f"No se implementó visit_{node.__class__.__name__}")
+                  f"No se implemento visit_{node.__class__.__name__}")
 
     # ---------- nodos de alto nivel ----------
     def visit_Program(self, node: Program, env):
@@ -135,7 +135,7 @@ class Checker:
             expr_type = normalize_type(self.visit(node.init_expr, env))
             if expr_type != node.dtype:
                 self._err(node, "TypeError",
-                          f"Asignación incompatible a '{node.name}': "
+                          f"Asignacion incompatible a '{node.name}': "
                           f"esperado {node.dtype}, obtenido {expr_type}")
 
     def visit_Assign(self, node: Assign, env):
@@ -150,7 +150,7 @@ class Checker:
         actual   = normalize_type(self.visit(node.expr, env))
         if actual != expected:
             self._err(node, "TypeError",
-                      f"Tipo incompatible en asignación a '{node.name}': "
+                      f"Tipo incompatible en asignacion a '{node.name}': "
                       f"esperado {expected}, se obtuvo {actual}")
 
         return expected
@@ -188,7 +188,7 @@ class Checker:
         result = check_binop(node.op, left, right)
         if result is None:
             self._err(node, "InvalidBinOp",
-                      f"Operador '{node.op}' no válido para "
+                      f"Operador '{node.op}' no valido para "
                       f"tipos {left} y {right}")
         else:
             node.type = result
@@ -199,7 +199,7 @@ class Checker:
         result = check_unaryop(node.op, operand)
         if result is None:
             self._err(node, "InvalidUnaryOp",
-                      f"Operador unario '{node.op}' no válido "
+                      f"Operador unario '{node.op}' no valido "
                       f"para tipo {operand}")
         else:
             node.type = result
@@ -242,7 +242,7 @@ class Checker:
         func = env.get(node.name)
         if not func:
             self._err(node, "UndeclaredFunc",
-                      f"Función '{node.name}' no declarada")
+                      f"Funcion '{node.name}' no declarada")
             return "undefined"
 
         expected_params = func.params.params if func.params else []
@@ -250,7 +250,7 @@ class Checker:
 
         if len(expected_params) != len(actual_args):
             self._err(node, "ArgMismatch",
-                      f"La función '{node.name}' esperaba "
+                      f"La funcion '{node.name}' esperaba "
                       f"{len(expected_params)} argumentos, "
                       f"se pasaron {len(actual_args)}")
 
@@ -259,8 +259,8 @@ class Checker:
             expected_t = normalize_type(expected.type)
             if actual_t != expected_t:
                 self._err(node, "TypeError",
-                          f"Tipo de argumento inválido para '{node.name}': "
-                          f"se esperaba {expected_t}, se recibió {actual_t}")
+                          f"Tipo de argumento invalido para '{node.name}': "
+                          f"se esperaba {expected_t}, se recibio {actual_t}")
 
         node.type = normalize_type(getattr(func, 'return_type', 'void'))
         return node.type

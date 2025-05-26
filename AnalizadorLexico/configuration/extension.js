@@ -11,19 +11,31 @@ function activate(context) {
             return;
         }
 
-        // Ruta fija al main.py
-        const mainScriptPath = "C:\\Users\\sefas\\OneDrive\\Documents\\compiladores\\AnalizadorLexico\\AnalizadorLexico\\main.py";
+        // DEBUGGING: Mostrar rutas
+        const goxFilePath = editor.document.fileName;
+        const projectDir = path.dirname(goxFilePath);
+        const mainScriptPath = path.join(projectDir, "main.py");
+        
+        console.log("GOX File:", goxFilePath);
+        console.log("Project Dir:", projectDir);
+        console.log("Main Script:", mainScriptPath);
+        
+        // Mostrar mensaje con las rutas para debugging
+        vscode.window.showInformationMessage(`Ejecutando desde: ${projectDir}`);
 
-        // Archivo .gox actualmente abierto
-        const fileToAnalyze = editor.document.fileName;
+        // Verificar que main.py existe
+        const fs = require('fs');
+        if (!fs.existsSync(mainScriptPath)) {
+            vscode.window.showErrorMessage(`No se encontró main.py en: ${projectDir}\nBuscando: ${mainScriptPath}`);
+            return;
+        }
 
         const terminal = vscode.window.createTerminal("GOX Terminal");
         terminal.show(true);
 
-        // Ejecuta en PowerShell: ir a la carpeta del main.py y lanzar Python con ambos paths
-        const fullCommand = `cd "${path.dirname(mainScriptPath)}"; & "${pythonPath}" "${mainScriptPath}" "${fileToAnalyze}"`;
-
-        terminal.sendText(fullCommand);
+        // Enviar comandos por separado para mejor compatibilidad
+        terminal.sendText(`cd "${projectDir}"`);
+        terminal.sendText(`python "${mainScriptPath}" "${goxFilePath}" --execute`);
     });
 
     context.subscriptions.push(disposable);
