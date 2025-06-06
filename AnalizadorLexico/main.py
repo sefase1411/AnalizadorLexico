@@ -42,6 +42,7 @@ def main():
     try:
         tokens = tokenize(source)
         print(f"    OK: {len(tokens)} tokens generados")
+        print(tokens)
     except Exception as e:
         print(f"    ERROR lexico: {e}")
         return

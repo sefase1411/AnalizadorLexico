@@ -2,18 +2,16 @@
     "name": "global",
     "symbols": {
         "mod": "FunctionDef",
-        "gcd": "FunctionDef",
-        "powmod": "FunctionDef",
-        "find_period": "FunctionDef",
-        "shor": "FunctionDef",
+        "is_prime": "FunctionDef",
+        "factorize": "FunctionDef",
         "num": "VarDecl"
     },
     "children": [
         {
             "name": "mod",
             "symbols": {
-                "a": "Param",
-                "b": "Param"
+                "x": "Param",
+                "y": "Param"
             },
             "children": [
                 {
@@ -24,41 +22,22 @@
             ]
         },
         {
-            "name": "gcd",
+            "name": "is_prime",
             "symbols": {
-                "a": "Param",
-                "b": "Param"
-            },
-            "children": [
-                {
-                    "name": "block",
-                    "symbols": {},
-                    "children": [
-                        {
-                            "name": "block",
-                            "symbols": {
-                                "t": "VarDecl"
-                            },
-                            "children": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "powmod",
-            "symbols": {
-                "a": "Param",
-                "x": "Param",
                 "n": "Param"
             },
             "children": [
                 {
                     "name": "block",
                     "symbols": {
-                        "result": "VarDecl"
+                        "i": "VarDecl"
                     },
                     "children": [
+                        {
+                            "name": "block",
+                            "symbols": {},
+                            "children": []
+                        },
                         {
                             "name": "block",
                             "symbols": {},
@@ -75,58 +54,27 @@
             ]
         },
         {
-            "name": "find_period",
+            "name": "factorize",
             "symbols": {
-                "a": "Param",
-                "N": "Param"
+                "n": "Param"
             },
             "children": [
                 {
                     "name": "block",
                     "symbols": {
-                        "r": "VarDecl",
-                        "apow": "VarDecl"
+                        "factor": "VarDecl"
                     },
                     "children": [
                         {
                             "name": "block",
                             "symbols": {},
-                            "children": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "shor",
-            "symbols": {
-                "N": "Param"
-            },
-            "children": [
-                {
-                    "name": "block",
-                    "symbols": {
-                        "a": "VarDecl",
-                        "r": "VarDecl",
-                        "x": "VarDecl",
-                        "f1": "VarDecl",
-                        "f2": "VarDecl"
-                    },
-                    "children": [
-                        {
-                            "name": "block",
-                            "symbols": {},
-                            "children": []
-                        },
-                        {
-                            "name": "block",
-                            "symbols": {},
-                            "children": []
-                        },
-                        {
-                            "name": "block",
-                            "symbols": {},
-                            "children": []
+                            "children": [
+                                {
+                                    "name": "block",
+                                    "symbols": {},
+                                    "children": []
+                                }
+                            ]
                         }
                     ]
                 }

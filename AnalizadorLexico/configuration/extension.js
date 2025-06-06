@@ -35,7 +35,9 @@ function activate(context) {
 
         // Enviar comandos por separado para mejor compatibilidad
         terminal.sendText(`cd "${projectDir}"`);
-        terminal.sendText(`python "${mainScriptPath}" "${goxFilePath}" --execute`);
+        terminal.sendText(`python main.py "${path.basename(goxFilePath)}" --execute`);
+
+
     });
 
     context.subscriptions.push(disposable);
